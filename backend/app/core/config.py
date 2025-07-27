@@ -56,6 +56,13 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
+    
+    # MongoDB settings
+    MONGODB_SERVER: str = "localhost"
+    MONGODB_PORT: int = 27017
+    MONGODB_DB: str = "app"
+    MONGODB_USER: str = ""
+    MONGODB_PASSWORD: str = ""
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -68,6 +75,13 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
+        
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def MONGODB_URI(self) -> str:
+        if self.MONGODB_USER and self.MONGODB_PASSWORD:
+            return f"mongodb://{self.MONGODB_USER}:{self.MONGODB_PASSWORD}@{self.MONGODB_SERVER}:{self.MONGODB_PORT}/{self.MONGODB_DB}"
+        return f"mongodb://{self.MONGODB_SERVER}:{self.MONGODB_PORT}/{self.MONGODB_DB}"
 
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False

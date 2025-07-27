@@ -12,7 +12,7 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
-from app.models import (
+from app.models.models import (
     Item,
     Message,
     UpdatePassword,
@@ -53,7 +53,7 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
 )
 def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
-    Create new user.
+    Create new UserUpdate.
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
