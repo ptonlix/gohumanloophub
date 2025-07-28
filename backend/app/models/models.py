@@ -1,4 +1,5 @@
 import uuid
+from typing import List, Optional, Generic, TypeVar
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -111,3 +112,22 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+
+T = TypeVar("T")  # 声明泛型类型变量
+
+class APIResponse(SQLModel):
+    """API 响应基础模型"""
+    success: bool = Field(default=True, description="请求是否成功")
+    error: Optional[str] = Field(default=None, description="错误信息（如有）")
+
+class APIResponseWithData(APIResponse, Generic[T]):
+    """带数据的API响应模型（支持泛型）"""
+    data: T = Field(description="响应数据")
+
+class APIResponseWithList(APIResponse, Generic[T]):
+    """带列表数据的API响应模型（支持泛型）"""
+    data: List[T] = Field(description="响应数据列表")
+    count: int = Field(description="数据总数")
+    skip: int = Field(default=0, description="跳过的记录数")
+    limit: int = Field(default=100, description="返回的记录数")

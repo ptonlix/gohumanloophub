@@ -47,3 +47,13 @@ class TaskModel(BaseModel):
     class Config:
         populate_by_name = True
         json_encoders = {datetime: lambda v: v.isoformat()}
+
+class TaskUpdateModel(BaseModel):
+    """任务更新状态模型"""
+    
+    id: str = Field(..., alias="_id")
+    task_id: str
+    updated: bool = False
+
+    class Config:
+        populate_by_name = True

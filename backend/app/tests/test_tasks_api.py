@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
 from app.api.routes.tasks import router as tasks_router
-from app.models.mongodb_models import TaskModel, SyncLogModel
+from app.models.mongodb_models import TaskModel
 from app.core.mongodb import get_mongo_db
 
 
@@ -40,8 +40,7 @@ def task_data():
     return {
         "task_id": "test_task_123",
         "user_id": "test_user_123",
-        "token_id": "test_token_123",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "conversations": [
             {
                 "conversation_id": "test_conv_123",
@@ -54,7 +53,7 @@ def task_data():
                         "response": "测试回复",
                         "feedback": "测试反馈",
                         "responded_by": "test_user_123",
-                        "responded_at": datetime.utcnow().isoformat(),
+                        "responded_at": datetime.now().isoformat(),
                         "error": None
                     }
                 ]
@@ -65,23 +64,6 @@ def task_data():
             "client_ip": "127.0.0.1",
             "user_agent": "Test Agent"
         }
-    }
-
-
-@pytest.fixture
-def sync_log_data():
-    return {
-        "task_id": "test_task_123",
-        "user_id": "test_user_123",
-        "token_id": "test_token_123",
-        "sync_status": "SUCCESS",
-        "error_message": None,
-        "request_details": {
-            "url": "https://test.example.com/sync",
-            "method": "POST",
-            "response_code": 200
-        },
-        "synced_at": datetime.utcnow().isoformat()
     }
 
 
@@ -187,43 +169,3 @@ def test_delete_task(client, mock_mongo_db):
     
     # 验证调用
     mock_mongo_db.tasks.delete_one.assert_called_once_with({"task_id": "test_task_123"})
-
-
-# 测试同步日志API
-def test_create_sync_log(client, mock_mongo_db, sync_log_data):
-    """测试创建同步日志API"""
-    # 设置模拟返回值
-    mock_mongo_db.sync_logs.insert_one.return_value = AsyncMock(inserted_id=ObjectId("60d21b4667d0d8992e610c86"))
-    mock_mongo_db.sync_logs.find_one.return_value = {"_id": ObjectId("60d21b4667d0d8992e610c86"), **sync_log_data}
-    
-    # 发送请求
-    response = client.post("/tasks/sync", json=sync_log_data)
-    
-    # 验证响应
-    assert response.status_code == 201
-    assert "id" in response.json()
-    assert response.json()["task_id"] == sync_log_data["task_id"]
-    
-    # 验证调用
-    mock_mongo_db.sync_logs.insert_one.assert_called_once()
-    mock_mongo_db.sync_logs.find_one.assert_called_once()
-
-
-def test_get_sync_logs(client, mock_mongo_db, sync_log_data):
-    """测试获取同步日志列表API"""
-    # 设置模拟返回值
-    mock_log = {"_id": ObjectId("60d21b4667d0d8992e610c86"), **sync_log_data}
-    mock_mongo_db.sync_logs.find.return_value.skip.return_value.limit.return_value.sort.return_value = AsyncMock()
-    mock_mongo_db.sync_logs.find.return_value.skip.return_value.limit.return_value.sort.return_value.to_list.return_value = [mock_log]
-    
-    # 发送请求
-    response = client.get("/tasks/sync/logs?task_id=test_task_123")
-    
-    # 验证响应
-    assert response.status_code == 200
-    assert isinstance(response.json(), list)
-    assert len(response.json()) == 1
-    assert response.json()[0]["task_id"] == sync_log_data["task_id"]
-    
-    # 验证调用
-    mock_mongo_db.sync_logs.find.assert_called_once()

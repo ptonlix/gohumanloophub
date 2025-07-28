@@ -1,15 +1,15 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional
+from fastapi import APIRouter, Query
+from typing import Optional
 
-from app.core.mongodb import get_mongo_db
-from app.models.mongodb_models import TaskModel
+from app.models.mongodb_models import TaskModel, TaskUpdateModel
 from app.api.deps import CurrentUser, MongoDep
+from app.models.models import APIResponseWithData, APIResponseWithList
 
 router = APIRouter(prefix="/humanloop/tasks", tags=["tasks"])
 
 
-@router.post("/sync", status_code=201)
+@router.post("/sync", response_model=APIResponseWithData[TaskUpdateModel], status_code=201)
 async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUser):
     """创建新任务或全量更新已存在的任务"""
     try:
@@ -44,23 +44,32 @@ async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUse
             # 如果任务已存在，执行全量替换（保留原始_id）
             task_dict["created_at"] = existing_task.get("created_at", datetime.utcnow())
             result = db.tasks.replace_one({"task_id": task.task_id}, task_dict)
-            return {
-                "id": str(existing_task["_id"]),
-                "task_id": task.task_id,
-                "updated": True,
-            }
+            return APIResponseWithData(
+                success=True,
+                data=TaskUpdateModel(
+                    _id=str(existing_task["_id"]),
+                    task_id=task.task_id,
+                    updated=True,
+                ),
+            )
         else:
             # 如果任务不存在，执行插入
             result = db.tasks.insert_one(task_dict)
-            return {
-                "id": str(result.inserted_id),
-                "task_id": task.task_id,
-                "updated": False,
-            }
+            return APIResponseWithData(
+                success=True,
+                data=TaskUpdateModel(
+                    _id=str(result.inserted_id),
+                    task_id=task.task_id,
+                    updated=False,
+                ),
+            )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"创建或更新任务失败: {str(e)}")
+        return APIResponseWithData(
+            success=False, error=f"创建或更新任务失败: {str(e)}", data=None
+        )
 
-@router.get("/user", response_model=List[dict])
+
+@router.get("/user", response_model=APIResponseWithList[TaskModel])
 async def get_my_tasks(
     db: MongoDep,
     current_user: CurrentUser,
@@ -84,12 +93,21 @@ async def get_my_tasks(
             doc["_id"] = str(doc["_id"])
             tasks.append(doc)
 
-        return tasks
+        return APIResponseWithList(
+            success=True, data=tasks, count=len(tasks), skip=skip, limit=limit
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取用户任务列表失败: {str(e)}")
+        return APIResponseWithList(
+            success=False,
+            error=f"获取用户任务列表失败: {str(e)}",
+            data=[],
+            count=0,
+            skip=skip,
+            limit=limit,
+        )
 
 
-@router.get("/{task_id}", response_model=dict)
+@router.get("/{task_id}", response_model=APIResponseWithData[TaskModel])
 async def get_task(db: MongoDep, current_user: CurrentUser, task_id: str):
     """根据task_id获取单个任务"""
     try:
@@ -97,30 +115,36 @@ async def get_task(db: MongoDep, current_user: CurrentUser, task_id: str):
         task = db.tasks.find_one({"user_id": str(current_user.id), "task_id": task_id})
 
         if not task:
-            raise HTTPException(status_code=404, detail=f"未找到任务: {task_id}")
+            return APIResponseWithData(
+                success=False, error=f"未找到任务: {task_id}", data=None
+            )
 
         # 转换ObjectId为字符串
         task["_id"] = str(task["_id"])
 
-        return task
-    except HTTPException:
-        raise
+        return APIResponseWithData(success=True, data=task)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取任务失败: {str(e)}")
+        return APIResponseWithData(
+            success=False, error=f"获取任务失败: {str(e)}", data=None
+        )
 
 
-@router.delete("/{task_id}")
+@router.delete("/{task_id}", response_model=APIResponseWithData)
 async def delete_task(db: MongoDep, current_user: CurrentUser, task_id: str):
     """删除任务"""
     try:
         # 执行删除
-        result = db.tasks.delete_one({"user_id": str(current_user.id), "task_id": task_id})
+        result = db.tasks.delete_one(
+            {"user_id": str(current_user.id), "task_id": task_id}
+        )
 
         if result.deleted_count == 0:
-            raise HTTPException(status_code=404, detail=f"未找到任务: {task_id}")
+            return APIResponseWithData(
+                success=False, error=f"未找到任务: {task_id}", data=None
+            )
 
-        return {"success": True, "message": "任务删除成功"}
-    except HTTPException:
-        raise
+        return APIResponseWithData(success=True, data={"message": "任务删除成功"})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"删除任务失败: {str(e)}")
+        return APIResponseWithData(
+            success=False, error=f"删除任务失败: {str(e)}", data=None
+        )
