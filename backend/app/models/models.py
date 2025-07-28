@@ -1,5 +1,6 @@
 import uuid
 from typing import List, Optional, Generic, TypeVar
+from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
@@ -45,6 +46,7 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    api_keys: list["APIKey"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -131,3 +133,40 @@ class APIResponseWithList(APIResponse, Generic[T]):
     count: int = Field(description="数据总数")
     skip: int = Field(default=0, description="跳过的记录数")
     limit: int = Field(default=100, description="返回的记录数")
+
+
+# API Key models
+class APIKeyBase(SQLModel):
+    name: str = Field(max_length=255, description="API Key名称")
+    is_active: bool = Field(default=True, description="是否激活")
+
+
+class APIKeyCreate(APIKeyBase):
+    pass
+
+
+class APIKeyUpdate(SQLModel):
+    name: str | None = Field(default=None, max_length=255)
+    is_active: bool | None = Field(default=None)
+
+
+class APIKey(APIKeyBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    key: str = Field(unique=True, index=True, max_length=64)
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    last_used_at: datetime | None = Field(default=None)
+    owner: User | None = Relationship(back_populates="api_keys")
+
+
+class APIKeyPublic(APIKeyBase):
+    id: uuid.UUID
+    key: str
+    owner_id: uuid.UUID
+    created_at: datetime
+    last_used_at: datetime | None
+
+
+class APIKeysPublic(SQLModel):
+    data: list[APIKeyPublic]
+    count: int
