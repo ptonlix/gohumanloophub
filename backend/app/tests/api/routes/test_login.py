@@ -20,8 +20,13 @@ def test_get_access_token(client: TestClient) -> None:
     r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
     tokens = r.json()
     assert r.status_code == 200
-    assert "access_token" in tokens
-    assert tokens["access_token"]
+    # Handle APIResponseWithData format
+    if "data" in tokens:
+        assert "access_token" in tokens["data"]
+        assert tokens["data"]["access_token"]
+    else:
+        assert "access_token" in tokens
+        assert tokens["access_token"]
 
 
 def test_get_access_token_incorrect_password(client: TestClient) -> None:

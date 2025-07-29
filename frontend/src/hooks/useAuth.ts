@@ -45,7 +45,16 @@ const useAuth = () => {
     const response = await LoginService.loginAccessToken({
       formData: data,
     })
-    localStorage.setItem("access_token", response.access_token)
+    // Handle APIResponseWithData format from backend
+    const responseData = response as any
+    if (responseData.data && responseData.data.access_token) {
+      localStorage.setItem("access_token", responseData.data.access_token)
+    } else if (responseData.access_token) {
+      // Fallback for direct Token format
+      localStorage.setItem("access_token", responseData.access_token)
+    } else {
+      throw new Error("No access token received")
+    }
   }
 
   const loginMutation = useMutation({

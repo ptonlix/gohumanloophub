@@ -20,7 +20,6 @@ def init_mongodb() -> None:
     try:
         # 检查连接是否正常
         mongo_client.admin.command('ping')
-        print(f"MongoDB连接成功: {settings.MONGODB_URI}")
     except Exception as e:
         print(f"MongoDB连接失败: {e}")
         raise e

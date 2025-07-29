@@ -49,7 +49,8 @@ const UserInformation = () => {
   const mutation = useMutation({
     mutationFn: (data: UserUpdateMe) =>
       UsersService.updateUserMe({ requestBody: data }),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["currentUser"], data);
       showSuccessToast("User updated successfully.")
     },
     onError: (err: ApiError) => {

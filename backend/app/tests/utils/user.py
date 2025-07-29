@@ -14,7 +14,11 @@ def user_authentication_headers(
 
     r = client.post(f"{settings.API_V1_STR}/login/access-token", data=data)
     response = r.json()
-    auth_token = response["access_token"]
+    # Handle APIResponseWithData format
+    if "data" in response and "access_token" in response["data"]:
+        auth_token = response["data"]["access_token"]
+    else:
+        auth_token = response["access_token"]
     headers = {"Authorization": f"Bearer {auth_token}"}
     return headers
 
