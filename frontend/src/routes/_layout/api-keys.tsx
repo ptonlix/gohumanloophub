@@ -166,16 +166,21 @@ function ApiKeys() {
                   </Table.Body>
                 </Table.Root>
                 
-                <PaginationRoot
-                  count={data.count}
-                  pageSize={PER_PAGE}
-                  page={page}
-                  onPageChange={(e) => handlePageChange(e.page)}
-                >
-                  <PaginationPrevTrigger />
-                  <PaginationItems />
-                  <PaginationNextTrigger />
-                </PaginationRoot>
+                <Flex justify="flex-end" mt={4}>
+                  <PaginationRoot
+                    count={data.count}
+                    pageSize={PER_PAGE}
+                    page={page}
+                    onPageChange={(e) => handlePageChange(e.page)}
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <PaginationPrevTrigger />
+                    <PaginationItems />
+                    <PaginationNextTrigger />
+                  </PaginationRoot>
+                </Flex>
               </>
             ) : (
               <Flex justify="center" align="center" height="200px">

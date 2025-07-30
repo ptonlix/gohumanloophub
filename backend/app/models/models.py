@@ -138,6 +138,7 @@ class APIResponseWithList(APIResponse, Generic[T]):
 # API Key models
 class APIKeyBase(SQLModel):
     name: str = Field(max_length=255, description="API Key名称")
+    description: str | None = Field(default=None, max_length=500, description="API Key描述")
     is_active: bool = Field(default=True, description="是否激活")
 
 
@@ -147,6 +148,7 @@ class APIKeyCreate(APIKeyBase):
 
 class APIKeyUpdate(SQLModel):
     name: str | None = Field(default=None, max_length=255)
+    description: str | None = Field(default=None, max_length=500)
     is_active: bool | None = Field(default=None)
 
 
