@@ -73,6 +73,7 @@ const AddApiKey = () => {
         <Button
           variant="solid"
           size="sm"
+          onClick={onOpen}
         >
           <FiPlus />
           添加 API Key

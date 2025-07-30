@@ -4,16 +4,20 @@ import {
   Container,
   Flex,
   Heading,
+  IconButton,
   Table,
   Text,
   VStack,
 } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 import { z } from "zod"
-import { FiKey } from "react-icons/fi"
+import { FiKey, FiCopy } from "react-icons/fi"
 
 import AddApiKey from "@/components/ApiKeys/AddApiKey"
+import EditApiKey from "@/components/ApiKeys/EditApiKey"
+import DeleteApiKey from "@/components/ApiKeys/DeleteApiKey"
 import { ApiKeyActionsMenu } from "@/components/Common/ApiKeyActionsMenu"
 import {
   PaginationItems,
@@ -21,7 +25,8 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination.tsx"
-import { ApiKeysService } from "@/client/ApiKeysService"
+import { type ApiKeyPublic, ApiKeysService } from "@/client/ApiKeysService"
+import useCustomToast from "@/hooks/useCustomToast"
 
 const apiKeysSearchSchema = z.object({
   page: z.number().catch(1),
@@ -46,12 +51,40 @@ function ApiKeys() {
   const queryClient = useQueryClient()
   const navigate = useNavigate({ from: "/api-keys" })
   const { page } = Route.useSearch()
+  const { showSuccessToast, showErrorToast } = useCustomToast()
+  const [editingApiKey, setEditingApiKey] = useState<ApiKeyPublic | null>(null)
+  const [deletingApiKey, setDeletingApiKey] = useState<ApiKeyPublic | null>(null)
   const { data, isPending, isError, error } = useQuery({
     ...getApiKeysQueryOptions({ page }),
   })
 
   const handlePageChange = (page: number) => {
     navigate({ search: { page } })
+  }
+
+  const handleCopyKey = async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key)
+      showSuccessToast("API Key copied to clipboard!")
+    } catch (err) {
+      showErrorToast("Failed to copy API Key")
+    }
+  }
+
+  const handleEdit = (apiKey: ApiKeyPublic) => {
+    setEditingApiKey(apiKey)
+  }
+
+  const handleDelete = (apiKey: ApiKeyPublic) => {
+    setDeletingApiKey(apiKey)
+  }
+
+  const handleCloseEdit = () => {
+    setEditingApiKey(null)
+  }
+
+  const handleCloseDelete = () => {
+    setDeletingApiKey(null)
   }
 
   return (
@@ -95,9 +128,21 @@ function ApiKeys() {
                           </Flex>
                         </Table.Cell>
                         <Table.Cell>
-                          <Text fontFamily="mono" fontSize="sm">
-                            {apiKey.key ? `${apiKey.key.slice(0, 8)}...` : "隐藏"}
-                          </Text>
+                          <Flex align="center" gap={2}>
+                            <Text fontFamily="mono" fontSize="sm">
+                              {apiKey.key ? `${apiKey.key.slice(0, 8)}...` : "隐藏"}
+                            </Text>
+                            {apiKey.key && (
+                              <IconButton
+                                aria-label="Copy API Key"
+                                size="xs"
+                                variant="ghost"
+                                onClick={() => handleCopyKey(apiKey.key!)}
+                              >
+                                <FiCopy />
+                              </IconButton>
+                            )}
+                          </Flex>
                         </Table.Cell>
                         <Table.Cell>
                           <Badge colorScheme={apiKey.is_active ? "green" : "red"}>
@@ -112,12 +157,8 @@ function ApiKeys() {
                         <Table.Cell>
                           <ApiKeyActionsMenu
                             apiKey={apiKey}
-                            onEdit={() => {
-                              // TODO: 实现编辑功能
-                            }}
-                            onDelete={() => {
-                              // TODO: 实现删除功能
-                            }}
+                            onEdit={() => handleEdit(apiKey)}
+                            onDelete={() => handleDelete(apiKey)}
                           />
                         </Table.Cell>
                       </Table.Row>
@@ -150,6 +191,24 @@ function ApiKeys() {
           </Box>
         )}
       </VStack>
+      
+      {/* 编辑对话框 */}
+      {editingApiKey && (
+        <EditApiKey 
+          apiKey={editingApiKey} 
+          isOpen={!!editingApiKey} 
+          onClose={handleCloseEdit} 
+        />
+      )}
+      
+      {/* 删除对话框 */}
+      {deletingApiKey && (
+        <DeleteApiKey 
+          apiKey={deletingApiKey} 
+          isOpen={!!deletingApiKey} 
+          onClose={handleCloseDelete} 
+        />
+      )}
     </Container>
   )
 }
