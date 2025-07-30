@@ -11,7 +11,7 @@ router = APIRouter(prefix="/humanloop/tasks", tags=["tasks"])
 
 @router.post("/sync", response_model=APIResponseWithData[TaskUpdateModel], status_code=201)
 async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUserByAPIKey):
-    """创建新任务或全量更新已存在的任务"""
+    """接收从客户端同步的任务数据，创建新任务或全量更新已存在的任务"""
     try:
         # 转换为字典并准备插入数据库
         task_dict = task.model_dump()
@@ -69,7 +69,7 @@ async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUse
         )
 
 
-@router.get("/user", response_model=APIResponseWithList[TaskModel])
+@router.get("/", response_model=APIResponseWithList[TaskModel])
 async def get_my_tasks(
     db: MongoDep,
     current_user: CurrentUser,

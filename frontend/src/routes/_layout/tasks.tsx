@@ -7,16 +7,17 @@ import {
   Table,
   Text,
   VStack,
-  Card,
-  CardBody,
-  SimpleGrid,
-  Tag,
-  TagLabel,
+  Button,
+  IconButton,
+  EmptyState,
+  HStack,
+  Tooltip,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
-import { FiCheckCircle, FiClock, FiAlertCircle, FiUser } from "react-icons/fi"
+import { FiCheckCircle, FiClock, FiAlertCircle, FiUser, FiEye, FiTrash2, FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
+import { BsThreeDotsVertical } from "react-icons/bs"
 
 import {
   PaginationItems,
@@ -24,7 +25,11 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination.tsx"
+import { MenuContent, MenuRoot, MenuTrigger } from "@/components/ui/menu"
 import { TasksService } from "@/client/TasksService"
+import TaskDetail from "@/components/Tasks/TaskDetail"
+import DeleteTask from "@/components/Tasks/DeleteTask"
+import PendingItems from "@/components/Pending/PendingItems"
 
 const tasksSearchSchema = z.object({
   page: z.number().catch(1),
@@ -37,52 +42,91 @@ function getTasksQueryOptions({ page }: { page: number }) {
     queryFn: () =>
       TasksService.getUserTasks({ skip: (page - 1) * PER_PAGE, limit: PER_PAGE }),
     queryKey: ["tasks", { page }],
+    placeholderData: (prevData: any) => prevData,
   }
 }
 
-function getStatusIcon(status: string) {
-  switch (status.toLowerCase()) {
-    case "completed":
-    case "done":
-      return <FiCheckCircle color="green" />
-    case "in_progress":
-    case "running":
-      return <FiClock color="blue" />
-    case "failed":
-    case "error":
-      return <FiAlertCircle color="red" />
-    default:
-      return <FiClock color="gray" />
+// 获取任务整体状态（基于所有请求的状态）
+function getTaskOverallStatus(conversations: any[]) {
+  if (!conversations || conversations.length === 0) {
+    return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
+  }
+  
+  let hasError = false
+  let hasRunning = false
+  let totalRequests = 0
+  let completedRequests = 0
+  
+  conversations.forEach(conv => {
+    if (conv.requests) {
+      conv.requests.forEach((req: any) => {
+        totalRequests++
+        if (req.status === 'completed' || req.status === 'done') {
+          completedRequests++
+        } else if (req.status === 'error' || req.status === 'failed') {
+          hasError = true
+        } else if (req.status === 'running' || req.status === 'in_progress') {
+          hasRunning = true
+        }
+      })
+    }
+  })
+  
+  if (hasError) {
+    return { status: 'error', icon: <FiAlertCircle color="red" />, color: 'red' }
+  }
+  if (hasRunning) {
+    return { status: 'running', icon: <FiActivity color="blue" />, color: 'blue' }
+  }
+  if (completedRequests === totalRequests && totalRequests > 0) {
+    return { status: 'completed', icon: <FiCheckCircle color="green" />, color: 'green' }
+  }
+  
+  return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
+}
+
+// 获取任务统计信息
+function getTaskStats(conversations: any[]) {
+  let totalConversations = conversations?.length || 0
+  let totalRequests = 0
+  let loopTypes = new Set()
+  
+  conversations?.forEach(conv => {
+    if (conv.requests) {
+      totalRequests += conv.requests.length
+      conv.requests.forEach((req: any) => {
+        if (req.loop_type) {
+          loopTypes.add(req.loop_type)
+        }
+      })
+    }
+  })
+  
+  return {
+    totalConversations,
+    totalRequests,
+    loopTypes: Array.from(loopTypes)
   }
 }
 
-function getStatusColor(status: string) {
-  switch (status.toLowerCase()) {
-    case "completed":
-    case "done":
-      return "green"
-    case "in_progress":
-    case "running":
-      return "blue"
-    case "failed":
-    case "error":
-      return "red"
-    default:
-      return "gray"
-  }
+interface TaskActionsMenuProps {
+  task: any
 }
 
-function getPriorityColor(priority: string) {
-  switch (priority?.toLowerCase()) {
-    case "high":
-      return "red"
-    case "medium":
-      return "yellow"
-    case "low":
-      return "green"
-    default:
-      return "gray"
-  }
+const TaskActionsMenu = ({ task }: TaskActionsMenuProps) => {
+  return (
+    <MenuRoot>
+      <MenuTrigger asChild>
+        <IconButton variant="ghost" color="inherit">
+          <BsThreeDotsVertical />
+        </IconButton>
+      </MenuTrigger>
+      <MenuContent>
+        <TaskDetail task={task} />
+        <DeleteTask taskId={task.task_id} />
+      </MenuContent>
+    </MenuRoot>
+  )
 }
 
 export const Route = createFileRoute("/_layout/tasks")({ 
@@ -90,134 +134,163 @@ export const Route = createFileRoute("/_layout/tasks")({
   validateSearch: (search) => tasksSearchSchema.parse(search),
 })
 
-function Tasks() {
-  const navigate = useNavigate({ from: "/tasks" })
+function TasksTable() {
+  const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
-  const { data, isPending, isError, error } = useQuery({
+
+  const { data, isLoading, isPlaceholderData } = useQuery({
     ...getTasksQueryOptions({ page }),
   })
 
-  const handlePageChange = (page: number) => {
-    navigate({ search: { page } })
+  const setPage = (page: number) =>
+    navigate({
+      search: (prev: { [key: string]: string }) => ({ ...prev, page }),
+    })
+
+  const tasks = data?.data ?? []
+  const count = data?.count ?? 0
+
+  if (isLoading) {
+    return <PendingItems />
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <EmptyState.Root>
+        <EmptyState.Content>
+          <EmptyState.Indicator>
+            <FiSearch />
+          </EmptyState.Indicator>
+          <VStack textAlign="center">
+            <EmptyState.Title>暂无任务数据</EmptyState.Title>
+            <EmptyState.Description>
+              当前没有任务记录，请稍后再试
+            </EmptyState.Description>
+          </VStack>
+        </EmptyState.Content>
+      </EmptyState.Root>
+    )
   }
 
   return (
+    <>
+      <Table.Root size={{ base: "sm", md: "md" }}>
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader w="md">任务ID</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">状态</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">对话统计</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">请求统计</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">循环类型</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">数据源</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">创建时间</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">操作</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {tasks?.map((task: any) => {
+            const overallStatus = getTaskOverallStatus(task.conversations)
+            const stats = getTaskStats(task.conversations)
+            
+            return (
+              <Table.Row key={task.task_id} opacity={isPlaceholderData ? 0.5 : 1}>
+                <Table.Cell>
+                  <VStack align="start" gap={1}>
+                    <Text fontWeight="medium" fontSize="sm">
+                      {task.task_id}
+                    </Text>
+                    {task.user_id && (
+                      <Text fontSize="xs" color="gray.500">
+                        用户: {task.user_id.slice(-8)}
+                      </Text>
+                    )}
+                  </VStack>
+                </Table.Cell>
+                <Table.Cell>
+                  <Flex align="center" gap={2}>
+                    {overallStatus.icon}
+                    <Badge colorScheme={overallStatus.color} size="sm">
+                      {overallStatus.status}
+                    </Badge>
+                  </Flex>
+                </Table.Cell>
+                <Table.Cell>
+                  <HStack gap={2}>
+                    <FiMessageCircle size={14} color="gray" />
+                    <Text fontSize="sm">{stats.totalConversations}</Text>
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell>
+                  <HStack gap={2}>
+                    <FiActivity size={14} color="gray" />
+                    <Text fontSize="sm">{stats.totalRequests}</Text>
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell>
+                   <Flex wrap="wrap" gap={1}>
+                     {stats.loopTypes.length > 0 ? (
+                       (stats.loopTypes as string[]).slice(0, 2).map((type: string, index: number) => (
+                         <Badge key={index} size="xs" colorScheme="blue">
+                           {type}
+                         </Badge>
+                       ))
+                     ) : (
+                       <Text fontSize="xs" color="gray.500">-</Text>
+                     )}
+                     {stats.loopTypes.length > 2 && (
+                       <Badge size="xs" colorScheme="gray" title={(stats.loopTypes as string[]).slice(2).join(', ')}>
+                         +{stats.loopTypes.length - 2}
+                       </Badge>
+                     )}
+                   </Flex>
+                 </Table.Cell>
+                <Table.Cell>
+                  <HStack gap={1}>
+                    <FiGlobe size={12} color="gray" />
+                    <Text fontSize="xs" color="gray.600">
+                      {task.metadata?.source || '-'}
+                    </Text>
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text fontSize="xs" color="gray.600">
+                    {task.created_at
+                      ? new Date(task.created_at).toLocaleDateString('zh-CN')
+                      : '-'}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell>
+                  <TaskActionsMenu task={task} />
+                </Table.Cell>
+              </Table.Row>
+            )
+          })}
+        </Table.Body>
+      </Table.Root>
+      <Flex justifyContent="flex-end" mt={4}>
+        <PaginationRoot
+          count={count}
+          pageSize={PER_PAGE}
+          onPageChange={({ page }) => setPage(page)}
+        >
+          <Flex>
+            <PaginationPrevTrigger />
+            <PaginationItems />
+            <PaginationNextTrigger />
+          </Flex>
+        </PaginationRoot>
+      </Flex>
+    </>
+  )
+}
+
+function Tasks() {
+  return (
     <Container maxW="full">
-      <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
+      <Heading size="lg" pt={12}>
         任务管理
       </Heading>
-
-      <VStack gap={4} align="stretch" w="full">
-        {isPending ? (
-          <Flex justify="center" align="center" height="200px">
-            <Text>加载中...</Text>
-          </Flex>
-        ) : isError ? (
-          <Flex justify="center" align="center" height="200px">
-            <Text color="red.500">加载失败: {error?.message}</Text>
-          </Flex>
-        ) : (
-          <Box>
-            {data?.data && data.data.length > 0 ? (
-              <>
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4} mb={6}>
-                  {data.data.map((task) => (
-                    <Card key={task.id} variant="outline">
-                      <CardBody>
-                        <VStack align="start" spacing={3}>
-                          <Flex justify="space-between" w="full" align="start">
-                            <Heading size="sm" noOfLines={2}>
-                              {task.name}
-                            </Heading>
-                            <Flex align="center" gap={1}>
-                              {getStatusIcon(task.status)}
-                            </Flex>
-                          </Flex>
-                          
-                          {task.description && (
-                            <Text fontSize="sm" color="gray.600" noOfLines={3}>
-                              {task.description}
-                            </Text>
-                          )}
-                          
-                          <Flex wrap="wrap" gap={2}>
-                            <Badge colorScheme={getStatusColor(task.status)}>
-                              {task.status}
-                            </Badge>
-                            {task.priority && (
-                              <Tag size="sm" colorScheme={getPriorityColor(task.priority)}>
-                                <TagLabel>{task.priority}</TagLabel>
-                              </Tag>
-                            )}
-                          </Flex>
-                          
-                          {task.assignee && (
-                            <Flex align="center" gap={2}>
-                              <FiUser size={14} />
-                              <Text fontSize="sm" color="gray.600">
-                                {task.assignee}
-                              </Text>
-                            </Flex>
-                          )}
-                          
-                          <Flex justify="space-between" w="full" fontSize="xs" color="gray.500">
-                            <Text>
-                              创建: {task.created_at ? new Date(task.created_at).toLocaleDateString('zh-CN') : '-'}
-                            </Text>
-                            {task.updated_at && (
-                              <Text>
-                                更新: {new Date(task.updated_at).toLocaleDateString('zh-CN')}
-                              </Text>
-                            )}
-                          </Flex>
-                          
-                          {task.metadata && Object.keys(task.metadata).length > 0 && (
-                            <Box w="full">
-                              <Text fontSize="xs" color="gray.500" mb={1}>元数据:</Text>
-                              <Box 
-                                bg="gray.50" 
-                                p={2} 
-                                borderRadius="md" 
-                                fontSize="xs"
-                                fontFamily="mono"
-                                maxH="100px"
-                                overflowY="auto"
-                              >
-                                <pre>{JSON.stringify(task.metadata, null, 2)}</pre>
-                              </Box>
-                            </Box>
-                          )}
-                        </VStack>
-                      </CardBody>
-                    </Card>
-                  ))}
-                </SimpleGrid>
-                
-                <PaginationRoot
-                  count={data.count}
-                  pageSize={PER_PAGE}
-                  page={page}
-                  onPageChange={(e) => handlePageChange(e.page)}
-                >
-                  <PaginationPrevTrigger />
-                  <PaginationItems />
-                  <PaginationNextTrigger />
-                </PaginationRoot>
-              </>
-            ) : (
-              <Flex justify="center" align="center" height="200px">
-                <VStack>
-                  <FiClock size={48} color="gray" />
-                  <Text color="gray.500">暂无任务</Text>
-                  <Text fontSize="sm" color="gray.400">
-                    当前没有同步的任务数据
-                  </Text>
-                </VStack>
-              </Flex>
-            )}
-          </Box>
-        )}
-      </VStack>
+      <TasksTable />
     </Container>
   )
 }
