@@ -2,16 +2,51 @@ import { CancelablePromise } from "./core/CancelablePromise"
 import { OpenAPI } from "./core/OpenAPI"
 import { request as __request } from "./core/request"
 
+export interface RequestModel {
+  request_id: string
+  status: string
+  loop_type: string
+  response: string
+  feedback?: string
+  responded_by: string
+  responded_at: string
+  error?: string
+}
+
+export interface ConversationModel {
+  conversation_id: string
+  provider_id: string
+  requests: RequestModel[]
+}
+
+export interface MetadataModel {
+  source: string
+  client_ip: string
+  user_agent: string
+}
+
 export interface TaskData {
   id?: string
-  name: string
+  _id?: string
+  task_id?: string
+  user_id?: string
+  name?: string
   description?: string
-  status: string
-  priority?: string
   assignee?: string
+  timestamp?: string
+  conversations?: ConversationModel[]
+  metadata?: MetadataModel
   created_at?: string
   updated_at?: string
-  metadata?: Record<string, any>
+}
+
+export interface APIResponse {
+  success: boolean
+  error?: string
+}
+
+export interface APIResponseWithData<T> extends APIResponse {
+  data: T
 }
 
 export interface TasksPublic {
@@ -77,7 +112,7 @@ export class TasksService {
     taskId,
   }: {
     taskId: string
-  }): CancelablePromise<TaskData> {
+  }): CancelablePromise<APIResponseWithData<TaskData>> {
     return __request(OpenAPI, {
       method: "GET",
       url: "/api/v1/humanloop/tasks/{task_id}",

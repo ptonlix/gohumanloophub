@@ -38,11 +38,11 @@ class TaskModel(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
     task_id: str
     user_id: Optional[str] = None
-    timestamp: datetime
+    timestamp: datetime # 客户端数据收集时间
     conversations: List[ConversationModel]
-    metadata: MetadataModel
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    metadata: MetadataModel 
+    created_at: datetime = Field(default_factory=datetime.utcnow) # 任务创建时间
+    updated_at: datetime = Field(default_factory=datetime.utcnow) # 任务更新时间
 
     class Config:
         populate_by_name = True

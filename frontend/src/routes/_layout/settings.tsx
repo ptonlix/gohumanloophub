@@ -17,7 +17,6 @@ const tabsConfig = [
 export const Route = createFileRoute("/_layout/settings")({
   component: UserSettings,
 })
-
 function UserSettings() {
   const { user: currentUser } = useAuth()
   const finalTabs = currentUser?.is_superuser

@@ -1,22 +1,18 @@
 import {
-  Badge,
-  Box,
   Container,
   Flex,
   Heading,
   Table,
   Text,
   VStack,
-  Button,
   IconButton,
   EmptyState,
   HStack,
-  Tooltip,
 } from "@chakra-ui/react"
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
-import { FiCheckCircle, FiClock, FiAlertCircle, FiUser, FiEye, FiTrash2, FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
+import { FiCheckCircle, FiClock, FiAlertCircle, FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
 import { BsThreeDotsVertical } from "react-icons/bs"
 
 import {
@@ -129,7 +125,7 @@ const TaskActionsMenu = ({ task }: TaskActionsMenuProps) => {
   )
 }
 
-export const Route = createFileRoute("/_layout/tasks")({ 
+export const Route = createFileRoute("/_layout/tasks")({
   component: Tasks,
   validateSearch: (search) => tasksSearchSchema.parse(search),
 })
@@ -178,18 +174,17 @@ function TasksTable() {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader w="md">任务ID</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">状态</Table.ColumnHeader>
             <Table.ColumnHeader w="md">对话统计</Table.ColumnHeader>
             <Table.ColumnHeader w="md">请求统计</Table.ColumnHeader>
-            <Table.ColumnHeader w="md">循环类型</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">数据源</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">数据收集时间</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">创建时间</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">更新时间</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">操作</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {tasks?.map((task: any) => {
-            const overallStatus = getTaskOverallStatus(task.conversations)
             const stats = getTaskStats(task.conversations)
             
             return (
@@ -207,14 +202,6 @@ function TasksTable() {
                   </VStack>
                 </Table.Cell>
                 <Table.Cell>
-                  <Flex align="center" gap={2}>
-                    {overallStatus.icon}
-                    <Badge colorScheme={overallStatus.color} size="sm">
-                      {overallStatus.status}
-                    </Badge>
-                  </Flex>
-                </Table.Cell>
-                <Table.Cell>
                   <HStack gap={2}>
                     <FiMessageCircle size={14} color="gray" />
                     <Text fontSize="sm">{stats.totalConversations}</Text>
@@ -227,24 +214,6 @@ function TasksTable() {
                   </HStack>
                 </Table.Cell>
                 <Table.Cell>
-                   <Flex wrap="wrap" gap={1}>
-                     {stats.loopTypes.length > 0 ? (
-                       (stats.loopTypes as string[]).slice(0, 2).map((type: string, index: number) => (
-                         <Badge key={index} size="xs" colorScheme="blue">
-                           {type}
-                         </Badge>
-                       ))
-                     ) : (
-                       <Text fontSize="xs" color="gray.500">-</Text>
-                     )}
-                     {stats.loopTypes.length > 2 && (
-                       <Badge size="xs" colorScheme="gray" title={(stats.loopTypes as string[]).slice(2).join(', ')}>
-                         +{stats.loopTypes.length - 2}
-                       </Badge>
-                     )}
-                   </Flex>
-                 </Table.Cell>
-                <Table.Cell>
                   <HStack gap={1}>
                     <FiGlobe size={12} color="gray" />
                     <Text fontSize="xs" color="gray.600">
@@ -254,8 +223,43 @@ function TasksTable() {
                 </Table.Cell>
                 <Table.Cell>
                   <Text fontSize="xs" color="gray.600">
+                    {task.timestamp
+                      ? new Date(task.timestamp).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })
+                      : '-'}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text fontSize="xs" color="gray.600">
                     {task.created_at
-                      ? new Date(task.created_at).toLocaleDateString('zh-CN')
+                      ? new Date(task.created_at).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })
+                      : '-'}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell>
+                  <Text fontSize="xs" color="gray.600">
+                    {task.updated_at
+                      ? new Date(task.updated_at).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit'
+                        })
                       : '-'}
                   </Text>
                 </Table.Cell>
