@@ -4,6 +4,7 @@ from datetime import datetime
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy.types import JSON
 
 
 # Shared properties
@@ -47,6 +48,7 @@ class User(UserBase, table=True):
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     api_keys: list["APIKey"] = Relationship(back_populates="owner", cascade_delete=True)
+    human_loop_requests: list["HumanLoopRequest"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -172,3 +174,87 @@ class APIKeyPublic(APIKeyBase):
 class APIKeysPublic(SQLModel):
     data: list[APIKeyPublic]
     count: int
+
+
+# Human Loop models
+class HumanLoopRequestBase(SQLModel):
+    task_id: str = Field(max_length=255, description="任务ID")
+    conversation_id: str = Field(max_length=255, description="对话ID")
+    request_id: str = Field(max_length=255, description="请求ID")
+    loop_type: str = Field(max_length=50, description="循环类型: conversation | approval | information")
+    platform: str = Field(max_length=50, description="平台: wechat | feishu | other")
+    status: str = Field(default="pending", max_length=50, description="状态: pending | approved | rejected | completed | cancelled")
+    context: dict = Field(sa_type=JSON, description="上下文信息")
+    metadata_: dict | None = Field(sa_type=JSON, description="元数据", alias="metadata")
+    response: dict | None = Field(default=None,sa_type=JSON, description="响应数据")
+    feedback: str | None = Field(default=None, max_length=1000, description="反馈信息")
+    responded_by: str | None = Field(default=None, max_length=255, description="响应人")
+    responded_at: datetime | None = Field(default=None, description="响应时间")
+
+
+class HumanLoopRequestCreate(SQLModel):
+    task_id: str = Field(max_length=255)
+    conversation_id: str = Field(max_length=255)
+    request_id: str = Field(max_length=255)
+    loop_type: str = Field(max_length=50)
+    platform: str = Field(max_length=50)
+    context: dict = Field(sa_type=JSON)
+    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")
+
+
+class HumanLoopRequestUpdate(SQLModel):
+    status: str | None = Field(default=None, max_length=50)
+    response: dict | None = Field(default=None, sa_type=JSON)
+    feedback: str | None = Field(default=None, max_length=1000)
+    responded_by: str | None = Field(default=None, max_length=255)
+    responded_at: datetime | None = Field(default=None)
+
+
+class HumanLoopRequest(HumanLoopRequestBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="创建时间")
+    updated_at: datetime = Field(default_factory=datetime.utcnow, description="更新时间")
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner: User | None = Relationship(back_populates="human_loop_requests")
+
+
+class HumanLoopRequestPublic(HumanLoopRequestBase):
+    id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
+    owner_id: uuid.UUID
+
+
+class HumanLoopRequestsPublic(SQLModel):
+    data: list[HumanLoopRequestPublic]
+    count: int
+
+
+# Human Loop API response models
+class HumanLoopStatusResponse(SQLModel):
+    success: bool = Field(default=True)
+    status: str = Field(description="请求状态")
+    response: dict | None = Field(sa_type=JSON, description="响应数据")
+    feedback: str | None = Field(default=None, description="反馈信息")
+    responded_by: str | None = Field(default=None, description="响应人")
+    responded_at: datetime | None = Field(default=None, description="响应时间")
+
+
+class HumanLoopCancelRequest(SQLModel):
+    conversation_id: str = Field(max_length=255)
+    request_id: str = Field(max_length=255)
+    platform: str = Field(max_length=50)
+
+
+class HumanLoopCancelConversationRequest(SQLModel):
+    conversation_id: str = Field(max_length=255)
+    platform: str = Field(max_length=50)
+
+
+class HumanLoopContinueRequest(SQLModel):
+    task_id: str = Field(max_length=255)
+    conversation_id: str = Field(max_length=255)
+    request_id: str = Field(max_length=255)
+    context: dict = Field(sa_type=JSON)
+    platform: str = Field(max_length=50)
+    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")

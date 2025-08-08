@@ -13,9 +13,12 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models.models import TokenPayload, User
+from app import crud
 from pymongo.database import Database
 from app.core.mongodb import get_mongo_db
-from app import crud
+import logging
+
+logger = logging.getLogger(__name__)
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/login/access-token"
@@ -63,28 +66,34 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
 
 
 def get_current_user_by_api_key(
-    session: SessionDep, x_api_key: Annotated[str | None, Header()] = None
+    session: SessionDep, token: TokenDep
 ) -> User:
-    if not x_api_key:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API Key required",
-        )
     
-    api_key = crud.get_api_key_by_key(session=session, key=x_api_key)
+    # 直接通过API Key查找对应的APIKey记录
+    api_key = crud.get_api_key_by_key(session=session, key=token)
     if not api_key:
+        logger.error(f"API Key not found: {token}")
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API Key",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
         )
     
+    # 检查API Key是否激活
+    if not api_key.is_active:
+        logger.error(f"API Key is inactive: {token}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="API Key is inactive",
+        )
+    
+    # 获取API Key对应的用户
     user = session.get(User, api_key.owner_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     
-    # 更新API Key最后使用时间
+    # 更新API Key的最后使用时间
     crud.update_api_key_last_used(session=session, api_key=api_key)
     
     return user

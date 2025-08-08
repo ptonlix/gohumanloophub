@@ -6,7 +6,11 @@ from datetime import datetime
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models.models import Item, ItemCreate, User, UserCreate, UserUpdate, APIKey, APIKeyCreate, APIKeyUpdate
+from app.models.models import (
+    Item, ItemCreate, User, UserCreate, UserUpdate, 
+    APIKey, APIKeyCreate, APIKeyUpdate,
+    HumanLoopRequest, HumanLoopRequestCreate, HumanLoopRequestUpdate
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -103,3 +107,105 @@ def delete_api_key(*, session: Session, api_key: APIKey) -> bool:
     session.delete(api_key)
     session.commit()
     return True
+
+
+# Human Loop CRUD operations
+def create_humanloop_request(
+    *, session: Session, request_in: HumanLoopRequestCreate, owner_id: uuid.UUID
+) -> HumanLoopRequest:
+    """创建人机循环请求"""
+    db_request = HumanLoopRequest.model_validate(
+        request_in, update={"owner_id": owner_id}
+    )
+    session.add(db_request)
+    session.commit()
+    session.refresh(db_request)
+    return db_request
+
+
+def get_humanloop_request(
+    *, session: Session, conversation_id: str, request_id: str, platform: str, owner_id: uuid.UUID
+) -> HumanLoopRequest | None:
+    """根据对话ID、请求ID和平台获取人机循环请求"""
+    statement = select(HumanLoopRequest).where(
+        HumanLoopRequest.conversation_id == conversation_id,
+        HumanLoopRequest.request_id == request_id,
+        HumanLoopRequest.platform == platform,
+        HumanLoopRequest.owner_id == owner_id
+    )
+    return session.exec(statement).first()
+
+
+def get_humanloop_requests_by_conversation(
+    *, session: Session, conversation_id: str, platform: str, owner_id: uuid.UUID
+) -> list[HumanLoopRequest]:
+    """获取指定对话的所有人机循环请求"""
+    statement = select(HumanLoopRequest).where(
+        HumanLoopRequest.conversation_id == conversation_id,
+        HumanLoopRequest.platform == platform,
+        HumanLoopRequest.owner_id == owner_id
+    )
+    return list(session.exec(statement).all())
+
+
+def get_pending_humanloop_requests_by_conversation(
+    *, session: Session, conversation_id: str, platform: str, owner_id: uuid.UUID
+) -> list[HumanLoopRequest]:
+    """获取指定对话的所有待处理人机循环请求"""
+    statement = select(HumanLoopRequest).where(
+        HumanLoopRequest.conversation_id == conversation_id,
+        HumanLoopRequest.platform == platform,
+        HumanLoopRequest.owner_id == owner_id,
+        HumanLoopRequest.status == "pending"
+    )
+    return list(session.exec(statement).all())
+
+
+def update_humanloop_request(
+    *, session: Session, db_request: HumanLoopRequest, request_in: HumanLoopRequestUpdate
+) -> HumanLoopRequest:
+    """更新人机循环请求"""
+    request_data = request_in.model_dump(exclude_unset=True)
+    if request_data:
+        request_data["updated_at"] = datetime.utcnow()
+        db_request.sqlmodel_update(request_data)
+        session.add(db_request)
+        session.commit()
+        session.refresh(db_request)
+    return db_request
+
+
+def cancel_humanloop_request(
+    *, session: Session, db_request: HumanLoopRequest
+) -> HumanLoopRequest:
+    """取消人机循环请求"""
+    db_request.status = "cancelled"
+    db_request.updated_at = datetime.utcnow()
+    session.add(db_request)
+    session.commit()
+    session.refresh(db_request)
+    return db_request
+
+
+def cancel_conversation_requests(
+    *, session: Session, conversation_id: str, platform: str, owner_id: uuid.UUID
+) -> int:
+    """取消指定对话的所有待处理请求，返回取消的请求数量"""
+    pending_requests = get_pending_humanloop_requests_by_conversation(
+        session=session,
+        conversation_id=conversation_id,
+        platform=platform,
+        owner_id=owner_id
+    )
+    
+    count = 0
+    for request in pending_requests:
+        request.status = "cancelled"
+        request.updated_at = datetime.utcnow()
+        session.add(request)
+        count += 1
+    
+    if count > 0:
+        session.commit()
+    
+    return count
