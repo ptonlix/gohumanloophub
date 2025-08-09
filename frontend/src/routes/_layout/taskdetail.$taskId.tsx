@@ -17,7 +17,6 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { FiUser, FiClock, FiArrowLeft, FiMessageSquare, FiDatabase, FiHash } from "react-icons/fi"
 
 import { TasksService, type ConversationModel, type RequestModel } from "@/client/TasksService"
-import PendingItems from "@/components/Pending/PendingItems"
 
 function getStatusColor(status: string) {
   switch (status?.toLowerCase()) {
@@ -70,7 +69,11 @@ function TaskDetailPage() {
   const task = response?.data
 
   if (isLoading) {
-    return <PendingItems />
+    return (
+      <Container maxW="7xl" py={8}>
+        <Text>加载中...</Text>
+      </Container>
+    )
   }
   console.log(task)
   if (!task) {

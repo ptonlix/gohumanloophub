@@ -25,7 +25,6 @@ import { MenuContent, MenuRoot, MenuTrigger } from "@/components/ui/menu"
 import { TasksService } from "@/client/TasksService"
 import TaskDetail from "@/components/Tasks/TaskDetail"
 import DeleteTask from "@/components/Tasks/DeleteTask"
-import PendingItems from "@/components/Pending/PendingItems"
 
 const tasksSearchSchema = z.object({
   page: z.number().catch(1),
@@ -147,7 +146,11 @@ function TasksTable() {
   const count = data?.count ?? 0
 
   if (isLoading) {
-    return <PendingItems />
+    return (
+      <Container maxW="7xl" py={8}>
+        <Text>加载中...</Text>
+      </Container>
+    )
   }
 
   if (tasks.length === 0) {
