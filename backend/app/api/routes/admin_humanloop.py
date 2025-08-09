@@ -71,7 +71,7 @@ def get_admin_humanloop_requests(
     获取管理后台人机循环请求列表
     """
     try:
-        # 使用CRUD方法获取数据
+        # 使用CRUD方法获取数据，只获取当前用户的数据
         requests = crud.get_humanloop_requests_with_filters(
             session=session,
             loop_type=loop_type,
@@ -80,7 +80,8 @@ def get_admin_humanloop_requests(
             created_at_start=created_at_start,
             created_at_end=created_at_end,
             skip=skip,
-            limit=limit
+            limit=limit,
+            owner_id=current_user.id
         )
         
         # 获取总数
@@ -89,6 +90,7 @@ def get_admin_humanloop_requests(
             loop_type=loop_type,
             status=status,
             platform=platform,
+            owner_id=current_user.id,
             created_at_start=created_at_start,
             created_at_end=created_at_end
         )
@@ -124,7 +126,8 @@ def get_admin_humanloop_request(
             
         humanloop_request = crud.get_humanloop_request_by_id(
             session=session,
-            request_id=request_uuid
+            request_id=request_uuid,
+            owner_id=current_user.id
         )
         
         if not humanloop_request:
@@ -160,7 +163,8 @@ def handle_approval_request(
             
         humanloop_request = crud.get_humanloop_request_by_id(
             session=session,
-            request_id=request_uuid
+            request_id=request_uuid,
+            owner_id=current_user.id
         )
         
         if not humanloop_request:
@@ -227,7 +231,8 @@ def handle_information_request(
             
         humanloop_request = crud.get_humanloop_request_by_id(
             session=session,
-            request_id=request_uuid
+            request_id=request_uuid,
+            owner_id=current_user.id
         )
         
         if not humanloop_request:
@@ -287,7 +292,8 @@ def handle_conversation_request(
             
         humanloop_request = crud.get_humanloop_request_by_id(
             session=session,
-            request_id=request_uuid
+            request_id=request_uuid,
+            owner_id=current_user.id
         )
         
         if not humanloop_request:
@@ -367,7 +373,8 @@ def handle_batch_requests(
                     
                 humanloop_request = crud.get_humanloop_request_by_id(
                     session=session,
-                    request_id=request_uuid
+                    request_id=request_uuid,
+                    owner_id=current_user.id
                 )
                 
                 if not humanloop_request:
@@ -438,7 +445,8 @@ def update_request_status(
             
         humanloop_request = crud.get_humanloop_request_by_id(
             session=session,
-            request_id=request_uuid
+            request_id=request_uuid,
+            owner_id=current_user.id
         )
         
         if not humanloop_request:
@@ -473,8 +481,8 @@ def get_humanloop_stats(
     获取人机循环统计信息
     """
     try:
-        # 使用CRUD方法获取统计信息
-        stats = crud.get_humanloop_stats(session=session)
+        # 使用CRUD方法获取统计信息，只获取当前用户的数据
+        stats = crud.get_humanloop_stats(session=session, owner_id=current_user.id)
         
         return APIResponseWithData(
             success=True,

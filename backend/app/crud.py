@@ -204,17 +204,19 @@ def cancel_conversation_requests(
 
 # Admin Human Loop CRUD operations for management backend
 def get_humanloop_request_by_id(
-    *, session: Session, request_id: uuid.UUID
+    *, session: Session, request_id: uuid.UUID, owner_id: uuid.UUID | None = None
 ) -> HumanLoopRequest | None:
     """根据UUID获取人机循环请求（管理后台使用）"""
     statement = select(HumanLoopRequest).where(HumanLoopRequest.id == request_id)
+    if owner_id:
+        statement = statement.where(HumanLoopRequest.owner_id == owner_id)
     return session.exec(statement).first()
 
 
 def get_humanloop_requests_with_filters(
     *, session: Session, loop_type: str | None = None, status: str | None = None, 
     platform: str | None = None, created_at_start: str | None = None, 
-    created_at_end: str | None = None, skip: int = 0, limit: int = 100
+    created_at_end: str | None = None, skip: int = 0, limit: int = 100, owner_id: uuid.UUID | None = None
 ) -> list[HumanLoopRequest]:
     """根据过滤条件获取人机循环请求列表（管理后台使用）"""
     from sqlmodel import desc
@@ -224,6 +226,8 @@ def get_humanloop_requests_with_filters(
     statement = select(HumanLoopRequest)
     
     conditions = []
+    if owner_id:
+        conditions.append(HumanLoopRequest.owner_id == owner_id)
     if loop_type:
         conditions.append(HumanLoopRequest.loop_type == loop_type)
     if status:
@@ -260,15 +264,18 @@ def get_humanloop_requests_with_filters(
 def count_humanloop_requests_with_filters(
     *, session: Session, loop_type: str | None = None, status: str | None = None, 
     platform: str | None = None, created_at_start: str | None = None, 
-    created_at_end: str | None = None
+    created_at_end: str | None = None, owner_id: uuid.UUID | None = None
 ) -> int:
     """统计符合过滤条件的人机循环请求数量（管理后台使用）"""
+    from sqlmodel import func
     from sqlalchemy import and_
     from datetime import datetime as dt
     
-    statement = select(HumanLoopRequest)
+    statement = select(func.count()).select_from(HumanLoopRequest)
     
     conditions = []
+    if owner_id:
+        conditions.append(HumanLoopRequest.owner_id == owner_id)
     if loop_type:
         conditions.append(HumanLoopRequest.loop_type == loop_type)
     if status:
@@ -299,7 +306,7 @@ def count_humanloop_requests_with_filters(
     return len(list(session.exec(statement).all()))
 
 
-def get_humanloop_stats(*, session: Session) -> dict:
+def get_humanloop_stats(*, session: Session, owner_id: uuid.UUID | None = None) -> dict:
     """获取人机循环请求统计信息（管理后台使用）"""
     stats = {}
     
@@ -307,6 +314,8 @@ def get_humanloop_stats(*, session: Session) -> dict:
     status_stats = {}
     for status in ["pending", "inprogress", "completed", "cancelled", "approved", "rejected", "error", "expired"]:
         statement = select(HumanLoopRequest).where(HumanLoopRequest.status == status)
+        if owner_id:
+            statement = statement.where(HumanLoopRequest.owner_id == owner_id)
         count = len(list(session.exec(statement).all()))
         status_stats[status] = count
     stats["by_status"] = status_stats
@@ -315,6 +324,8 @@ def get_humanloop_stats(*, session: Session) -> dict:
     type_stats = {}
     for loop_type in ["conversation", "approval", "information"]:
         statement = select(HumanLoopRequest).where(HumanLoopRequest.loop_type == loop_type)
+        if owner_id:
+            statement = statement.where(HumanLoopRequest.owner_id == owner_id)
         count = len(list(session.exec(statement).all()))
         type_stats[loop_type] = count
     stats["by_type"] = type_stats
@@ -323,12 +334,16 @@ def get_humanloop_stats(*, session: Session) -> dict:
     platform_stats = {}
     for platform in ["wechat", "feishu", "other"]:
         statement = select(HumanLoopRequest).where(HumanLoopRequest.platform == platform)
+        if owner_id:
+            statement = statement.where(HumanLoopRequest.owner_id == owner_id)
         count = len(list(session.exec(statement).all()))
         platform_stats[platform] = count
     stats["by_platform"] = platform_stats
     
     # 总数统计
     total_statement = select(HumanLoopRequest)
+    if owner_id:
+        total_statement = total_statement.where(HumanLoopRequest.owner_id == owner_id)
     total_count = len(list(session.exec(total_statement).all()))
     stats["total"] = total_count
     
