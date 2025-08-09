@@ -1,7 +1,7 @@
 import { Box, Flex, Icon, Text } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
-import { FiBriefcase, FiHome, FiSettings, FiUsers, FiKey, FiCheckSquare } from "react-icons/fi"
+import { FiBriefcase, FiHome, FiSettings, FiUsers, FiKey, FiCheckSquare, FiRefreshCw } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
 
 import type { UserPublic } from "@/client"
@@ -10,6 +10,7 @@ const items = [
   { icon: FiHome, title: "Dashboard", path: "/" },
   { icon: FiBriefcase, title: "Items", path: "/items" },
   { icon: FiCheckSquare, title: "Tasks", path: "/tasks" },
+  { icon: FiRefreshCw, title: "Human Loop", path: "/humanloop" },
   { icon: FiKey, title: "API Keys", path: "/api-keys" },
   { icon: FiSettings, title: "User Settings", path: "/settings" },
 ]

@@ -183,7 +183,7 @@ class HumanLoopRequestBase(SQLModel):
     request_id: str = Field(max_length=255, description="请求ID")
     loop_type: str = Field(max_length=50, description="循环类型: conversation | approval | information")
     platform: str = Field(max_length=50, description="平台: wechat | feishu | other")
-    status: str = Field(default="pending", max_length=50, description="状态: pending | approved | rejected | completed | cancelled")
+    status: str = Field(default="pending", max_length=50, description="状态: pending | approved | rejected | error| expired| inprogress | completed | cancelled")
     context: dict = Field(sa_type=JSON, description="上下文信息")
     metadata_: dict | None = Field(sa_type=JSON, description="元数据", alias="metadata")
     response: dict | None = Field(default=None,sa_type=JSON, description="响应数据")
@@ -257,4 +257,5 @@ class HumanLoopContinueRequest(SQLModel):
     request_id: str = Field(max_length=255)
     context: dict = Field(sa_type=JSON)
     platform: str = Field(max_length=50)
-    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")
+    metadata_: dict | None= Field(default=None, sa_type=JSON, alias="metadata")
+    

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 
 
@@ -9,7 +9,7 @@ class RequestModel(BaseModel):
     request_id: str
     status: str
     loop_type: str
-    response: str
+    response: Union[dict, str]
     feedback: Optional[str] = None
     responded_by: str
     responded_at: datetime

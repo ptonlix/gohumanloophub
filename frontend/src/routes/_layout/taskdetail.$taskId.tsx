@@ -203,7 +203,18 @@ function TaskDetailPage() {
                                     <Box mb={2}>
                                       <Text fontSize="sm" fontWeight="medium" mb={1}>响应内容:</Text>
                                       <Box bg="white" p={2} rounded="sm" fontSize="sm" maxH="200px" overflowY="auto">
-                                        <pre style={{ whiteSpace: 'pre-wrap' }}>{request.response}</pre>
+                                        <pre style={{ whiteSpace: 'pre-wrap' }}>
+                                          {(() => {
+                                            try {
+                                              const parsed = typeof request.response === 'string' ? JSON.parse(request.response) : request.response;
+                                              return parsed && typeof parsed === 'object' && parsed.message 
+                                                ? parsed.message 
+                                                : request.response;
+                                            } catch {
+                                              return request.response;
+                                            }
+                                          })()}
+                                        </pre>
                                       </Box>
                                     </Box>
                                   )}
@@ -211,7 +222,18 @@ function TaskDetailPage() {
                                     <Box mb={2}>
                                       <Text fontSize="sm" fontWeight="medium" mb={1}>反馈:</Text>
                                       <Box bg="white" p={2} rounded="sm" fontSize="sm">
-                                        <pre style={{ whiteSpace: 'pre-wrap' }}>{request.feedback}</pre>
+                                        <pre style={{ whiteSpace: 'pre-wrap' }}>
+                                          {(() => {
+                                            try {
+                                              const parsed = typeof request.feedback === 'string' ? JSON.parse(request.feedback) : request.feedback;
+                                              return parsed && typeof parsed === 'object' && parsed.message 
+                                                ? parsed.message 
+                                                : request.feedback;
+                                            } catch {
+                                              return request.feedback;
+                                            }
+                                          })()}
+                                        </pre>
                                       </Box>
                                     </Box>
                                   )}

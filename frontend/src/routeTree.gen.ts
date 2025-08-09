@@ -20,6 +20,7 @@ import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutTasksImport } from './routes/_layout/tasks'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
+import { Route as LayoutHumanloopImport } from './routes/_layout/humanloop'
 import { Route as LayoutApiKeysImport } from './routes/_layout/api-keys'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
 import { Route as LayoutTaskdetailTaskIdImport } from './routes/_layout/taskdetail.$taskId'
@@ -71,6 +72,11 @@ const LayoutItemsRoute = LayoutItemsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
+const LayoutHumanloopRoute = LayoutHumanloopImport.update({
+  path: '/humanloop',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
 const LayoutApiKeysRoute = LayoutApiKeysImport.update({
   path: '/api-keys',
   getParentRoute: () => LayoutRoute,
@@ -118,6 +124,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutApiKeysImport
       parentRoute: typeof LayoutImport
     }
+    '/_layout/humanloop': {
+      preLoaderRoute: typeof LayoutHumanloopImport
+      parentRoute: typeof LayoutImport
+    }
     '/_layout/items': {
       preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
@@ -147,6 +157,7 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
     LayoutApiKeysRoute,
+    LayoutHumanloopRoute,
     LayoutItemsRoute,
     LayoutSettingsRoute,
     LayoutTasksRoute,

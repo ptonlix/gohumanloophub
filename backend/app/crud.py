@@ -209,3 +209,136 @@ def cancel_conversation_requests(
         session.commit()
     
     return count
+
+
+# Admin Human Loop CRUD operations for management backend
+def get_humanloop_request_by_id(
+    *, session: Session, request_id: uuid.UUID
+) -> HumanLoopRequest | None:
+    """根据UUID获取人机循环请求（管理后台使用）"""
+    statement = select(HumanLoopRequest).where(HumanLoopRequest.id == request_id)
+    return session.exec(statement).first()
+
+
+def get_humanloop_requests_with_filters(
+    *, session: Session, loop_type: str | None = None, status: str | None = None, 
+    platform: str | None = None, created_at_start: str | None = None, 
+    created_at_end: str | None = None, skip: int = 0, limit: int = 100
+) -> list[HumanLoopRequest]:
+    """根据过滤条件获取人机循环请求列表（管理后台使用）"""
+    from sqlmodel import desc
+    from sqlalchemy import and_
+    from datetime import datetime as dt
+    
+    statement = select(HumanLoopRequest)
+    
+    conditions = []
+    if loop_type:
+        conditions.append(HumanLoopRequest.loop_type == loop_type)
+    if status:
+        conditions.append(HumanLoopRequest.status == status)
+    if platform:
+        conditions.append(HumanLoopRequest.platform == platform)
+    
+    # 添加时间范围筛选
+    if created_at_start:
+        try:
+            start_date = dt.strptime(created_at_start, "%Y-%m-%d")
+            conditions.append(HumanLoopRequest.created_at >= start_date)
+        except ValueError:
+            pass  # 忽略无效的日期格式
+    
+    if created_at_end:
+        try:
+            end_date = dt.strptime(created_at_end, "%Y-%m-%d")
+            # 设置为当天的23:59:59
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+            conditions.append(HumanLoopRequest.created_at <= end_date)
+        except ValueError:
+            pass  # 忽略无效的日期格式
+    
+    if conditions:
+        statement = statement.where(and_(*conditions))
+    
+    # 按创建时间倒序排列
+    statement = statement.order_by(desc(HumanLoopRequest.created_at))
+    statement = statement.offset(skip).limit(limit)
+    return list(session.exec(statement).all())
+
+
+def count_humanloop_requests_with_filters(
+    *, session: Session, loop_type: str | None = None, status: str | None = None, 
+    platform: str | None = None, created_at_start: str | None = None, 
+    created_at_end: str | None = None
+) -> int:
+    """统计符合过滤条件的人机循环请求数量（管理后台使用）"""
+    from sqlalchemy import and_
+    from datetime import datetime as dt
+    
+    statement = select(HumanLoopRequest)
+    
+    conditions = []
+    if loop_type:
+        conditions.append(HumanLoopRequest.loop_type == loop_type)
+    if status:
+        conditions.append(HumanLoopRequest.status == status)
+    if platform:
+        conditions.append(HumanLoopRequest.platform == platform)
+    
+    # 添加时间范围筛选
+    if created_at_start:
+        try:
+            start_date = dt.strptime(created_at_start, "%Y-%m-%d")
+            conditions.append(HumanLoopRequest.created_at >= start_date)
+        except ValueError:
+            pass  # 忽略无效的日期格式
+    
+    if created_at_end:
+        try:
+            end_date = dt.strptime(created_at_end, "%Y-%m-%d")
+            # 设置为当天的23:59:59
+            end_date = end_date.replace(hour=23, minute=59, second=59)
+            conditions.append(HumanLoopRequest.created_at <= end_date)
+        except ValueError:
+            pass  # 忽略无效的日期格式
+    
+    if conditions:
+        statement = statement.where(and_(*conditions))
+    
+    return len(list(session.exec(statement).all()))
+
+
+def get_humanloop_stats(*, session: Session) -> dict:
+    """获取人机循环请求统计信息（管理后台使用）"""
+    stats = {}
+    
+    # 按状态统计
+    status_stats = {}
+    for status in ["pending", "inprogress", "completed", "cancelled", "approved", "rejected", "error", "expired"]:
+        statement = select(HumanLoopRequest).where(HumanLoopRequest.status == status)
+        count = len(list(session.exec(statement).all()))
+        status_stats[status] = count
+    stats["by_status"] = status_stats
+    
+    # 按类型统计
+    type_stats = {}
+    for loop_type in ["conversation", "approval", "information"]:
+        statement = select(HumanLoopRequest).where(HumanLoopRequest.loop_type == loop_type)
+        count = len(list(session.exec(statement).all()))
+        type_stats[loop_type] = count
+    stats["by_type"] = type_stats
+    
+    # 按平台统计
+    platform_stats = {}
+    for platform in ["wechat", "feishu", "other"]:
+        statement = select(HumanLoopRequest).where(HumanLoopRequest.platform == platform)
+        count = len(list(session.exec(statement).all()))
+        platform_stats[platform] = count
+    stats["by_platform"] = platform_stats
+    
+    # 总数统计
+    total_statement = select(HumanLoopRequest)
+    total_count = len(list(session.exec(total_statement).all()))
+    stats["total"] = total_count
+    
+    return stats

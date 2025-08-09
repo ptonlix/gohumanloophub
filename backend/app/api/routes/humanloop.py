@@ -1,4 +1,3 @@
-import uuid
 from typing import Any
 from datetime import datetime
 
@@ -7,17 +6,13 @@ from sqlmodel import select, and_
 
 from app.api.deps import SessionDep, CurrentUserByAPIKey
 from app.models.models import (
-    HumanLoopRequest,
     HumanLoopRequestCreate,
     HumanLoopRequestUpdate,
-    HumanLoopRequestPublic,
-    HumanLoopRequestsPublic,
     HumanLoopStatusResponse,
     HumanLoopCancelRequest,
     HumanLoopCancelConversationRequest,
     HumanLoopContinueRequest,
     APIResponse,
-    APIResponseWithData,
 )
 from app import crud
 
@@ -229,7 +224,7 @@ def continue_humanloop_request(
                 loop_type="conversation",  # 默认为conversation类型
                 platform=continue_request.platform,
                 context=continue_request.context,
-                metadata=continue_request.metadata
+                metadata= continue_request.metadata   # pyright: ignore[reportArgumentType]
             )
             
             crud.create_humanloop_request(
