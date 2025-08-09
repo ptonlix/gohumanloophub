@@ -9,6 +9,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import type {
   ApprovalRequest,
@@ -49,6 +50,7 @@ const ProcessRequestModal = ({
   isOpen,
   onClose,
 }: ProcessRequestModalProps) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -139,7 +141,7 @@ const ProcessRequestModal = ({
     <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && handleClose()}>
       <DialogContent maxW="2xl">
         <DialogHeader>
-          <DialogTitle>处理请求</DialogTitle>
+          <DialogTitle>{t('humanLoop.processRequest')}</DialogTitle>
           <DialogCloseTrigger />
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -147,12 +149,12 @@ const ProcessRequestModal = ({
             <VStack align="stretch" gap={4}>
               {/* 请求信息 */}
               <VStack align="stretch" gap={2}>
-                <Text fontWeight="medium">请求信息:</Text>
+                <Text fontWeight="medium">{t('humanLoop.requestInfo')}:</Text>
                 <Flex gap={2}>
                   <Badge colorScheme="blue">
-                    {request.loop_type === 'conversation' && '对话模式'}
-                    {request.loop_type === 'approval' && '审批模式'}
-                    {request.loop_type === 'information' && '信息获取'}
+                    {request.loop_type === 'conversation' && t('humanLoop.conversationMode')}
+                    {request.loop_type === 'approval' && t('humanLoop.approvalMode')}
+                    {request.loop_type === 'information' && t('humanLoop.informationMode')}
                   </Badge>
                   <Badge colorScheme="green">
                     {request.platform === 'GoHumanLoop' && 'GoHumanLoop'}
@@ -168,7 +170,7 @@ const ProcessRequestModal = ({
 
               {/* 审批模式特有的操作选择 */}
               {request.loop_type === 'approval' && (
-                <Field label="审批操作" required errorText={errors.action?.message}>
+                <Field label={t('humanLoop.approvalAction')} required errorText={errors.action?.message}>
                   <Controller
                     name="action"
                     control={control}
@@ -180,14 +182,14 @@ const ProcessRequestModal = ({
                           colorScheme="green"
                           onClick={() => field.onChange('approved')}
                         >
-                          通过
+                          {t('humanLoop.approve')}
                         </Button>
                         <Button
                           variant={field.value === 'rejected' ? 'solid' : 'outline'}
                           colorScheme="red"
                           onClick={() => field.onChange('rejected')}
                         >
-                          拒绝
+                          {t('humanLoop.reject')}
                         </Button>
                       </Flex>
                     )}
@@ -196,7 +198,7 @@ const ProcessRequestModal = ({
               )}
 
               {/* 响应消息 */}
-              <Field label="响应消息" required errorText={errors.message?.message}>
+              <Field label={t('humanLoop.responseMessage')} required errorText={errors.message?.message}>
                 <Controller
                   name="message"
                   control={control}
@@ -204,7 +206,7 @@ const ProcessRequestModal = ({
                   render={({ field }) => (
                     <Textarea
                       {...field}
-                      placeholder="请输入响应消息内容..."
+                      placeholder={t('humanLoop.responsePlaceholder')}
                       rows={4}
                     />
                   )}
@@ -213,7 +215,7 @@ const ProcessRequestModal = ({
 
               {/* 对话模式特有的完成选项 */}
               {request.loop_type === 'conversation' && (
-                <Field label="对话状态">
+                <Field label={t('humanLoop.conversationStatus')}>
                   <Controller
                     name="is_complete"
                     control={control}
@@ -224,14 +226,14 @@ const ProcessRequestModal = ({
                           colorScheme="green"
                           onClick={() => field.onChange(true)}
                         >
-                          完成对话
+                          {t('humanLoop.completeConversation')}
                         </Button>
                         <Button
                           variant={!field.value ? 'solid' : 'outline'}
                           colorScheme="blue"
                           onClick={() => field.onChange(false)}
                         >
-                          继续对话
+                          {t('humanLoop.continueConversation')}
                         </Button>
                       </Flex>
                     )}
@@ -240,14 +242,14 @@ const ProcessRequestModal = ({
               )}
 
               {/* 反馈信息 */}
-              <Field label="反馈信息（可选）" errorText={errors.feedback?.message}>
+              <Field label={t('humanLoop.feedbackOptional')} errorText={errors.feedback?.message}>
                 <Controller
                   name="feedback"
                   control={control}
                   render={({ field }) => (
                     <Textarea
                       {...field}
-                      placeholder="请输入处理反馈信息..."
+                      placeholder={t('humanLoop.feedbackPlaceholder')}
                       rows={2}
                     />
                   )}
@@ -257,15 +259,15 @@ const ProcessRequestModal = ({
           </DialogBody>
           <DialogFooter>
             <Button variant="outline" onClick={handleClose}>
-              取消
+              {t('humanLoop.cancel')}
             </Button>
             <Button
               type="submit"
               colorScheme="blue"
               loading={isLoading}
-              loadingText="处理中..."
+              loadingText={t('humanLoop.processing')}
             >
-              提交处理
+              {t('humanLoop.submitResponse')}
             </Button>
           </DialogFooter>
         </form>

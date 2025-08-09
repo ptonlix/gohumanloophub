@@ -14,6 +14,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { z } from "zod"
 import { FiKey, FiCopy } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import AddApiKey from "@/components/ApiKeys/AddApiKey"
 import EditApiKey from "@/components/ApiKeys/EditApiKey"
@@ -48,6 +49,7 @@ export const Route = createFileRoute("/_layout/api-keys")({
 })
 
 function ApiKeys() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate({ from: "/api-keys" })
   const { page } = Route.useSearch()
@@ -90,7 +92,7 @@ function ApiKeys() {
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: "center", md: "left" }} pt={12}>
-        API Keys 管理
+        {t("apiKeys.title")}
       </Heading>
 
       <VStack gap={4} align="stretch" w="full">
@@ -98,11 +100,11 @@ function ApiKeys() {
         
         {isPending ? (
           <Flex justify="center" align="center" height="200px">
-            <Text>加载中...</Text>
+            <Text>{t("apiKeys.loading")}</Text>
           </Flex>
         ) : isError ? (
           <Flex justify="center" align="center" height="200px">
-            <Text color="red.500">加载失败: {error?.message}</Text>
+            <Text color="red.500">{t("apiKeys.loadError")} {error?.message}</Text>
           </Flex>
         ) : (
           <Box>
@@ -111,11 +113,11 @@ function ApiKeys() {
                 <Table.Root>
                   <Table.Header>
                     <Table.Row>
-                      <Table.ColumnHeader>名称</Table.ColumnHeader>
-                      <Table.ColumnHeader>Key</Table.ColumnHeader>
-                      <Table.ColumnHeader>状态</Table.ColumnHeader>
-                      <Table.ColumnHeader>创建时间</Table.ColumnHeader>
-                      <Table.ColumnHeader>操作</Table.ColumnHeader>
+                      <Table.ColumnHeader>{t("apiKeys.name")}</Table.ColumnHeader>
+                      <Table.ColumnHeader>{t("apiKeys.key")}</Table.ColumnHeader>
+                      <Table.ColumnHeader>{t("apiKeys.status")}</Table.ColumnHeader>
+                      <Table.ColumnHeader>{t("apiKeys.createdAt")}</Table.ColumnHeader>
+                      <Table.ColumnHeader>{t("apiKeys.actions")}</Table.ColumnHeader>
                     </Table.Row>
                   </Table.Header>
                   <Table.Body>
@@ -130,7 +132,7 @@ function ApiKeys() {
                         <Table.Cell>
                           <Flex align="center" gap={2}>
                             <Text fontFamily="mono" fontSize="sm">
-                              {apiKey.key ? `${apiKey.key.slice(0, 8)}...` : "隐藏"}
+                              {apiKey.key ? `${apiKey.key.slice(0, 8)}...` : t("apiKeys.hidden")}
                             </Text>
                             {apiKey.key && (
                               <IconButton
@@ -146,7 +148,7 @@ function ApiKeys() {
                         </Table.Cell>
                         <Table.Cell>
                           <Badge colorScheme={apiKey.is_active ? "green" : "red"}>
-                            {apiKey.is_active ? "活跃" : "禁用"}
+                            {apiKey.is_active ? t("apiKeys.active") : t("apiKeys.disabled")}
                           </Badge>
                         </Table.Cell>
                         <Table.Cell>
@@ -186,9 +188,9 @@ function ApiKeys() {
               <Flex justify="center" align="center" height="200px">
                 <VStack>
                   <FiKey size={48} color="gray" />
-                  <Text color="gray.500">暂无 API Keys</Text>
+                  <Text color="gray.500">{t("apiKeys.noApiKeys")}</Text>
                   <Text fontSize="sm" color="gray.400">
-                    点击上方按钮创建您的第一个 API Key
+                    {t("apiKeys.createFirstKey")}
                   </Text>
                 </VStack>
               </Flex>

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router"
 
 import Logo from "/assets/images/fastapi-logo.svg"
 import UserMenu from "./UserMenu"
+import LanguageSwitcher from "./LanguageSwitcher"
 
 function Navbar() {
   const display = useBreakpointValue({ base: "none", md: "flex" })
@@ -23,6 +24,7 @@ function Navbar() {
         <Image src={Logo} alt="Logo" maxW="3xs" p={2} />
       </Link>
       <Flex gap={2} alignItems="center">
+        <LanguageSwitcher />
         <UserMenu />
       </Flex>
     </Flex>

@@ -134,7 +134,7 @@ export class HumanLoopService {
   }: {
     loop_type?: 'conversation' | 'approval' | 'information'
     status?: 'pending' | 'inprogress' | 'completed' | 'cancelled' | 'approved' | 'rejected' | 'error' | 'expired'
-    platform?: 'wechat' | 'feishu' | 'other'
+    platform?: 'GoHumanLoop' | 'wework' | 'feishu' | 'other'
     created_at_start?: string
     created_at_end?: string
     skip?: number

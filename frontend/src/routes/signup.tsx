@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiLock, FiUser } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import type { UserRegister } from "@/client"
 import { Button } from "@/components/ui/button"
@@ -13,7 +14,7 @@ import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import { confirmPasswordRules, emailPattern, passwordRules } from "@/utils"
+import { confirmPasswordRules, getEmailPattern, passwordRules } from "@/utils"
 import Logo from "/assets/images/fastapi-logo.svg"
 
 export const Route = createFileRoute("/signup")({
@@ -32,6 +33,7 @@ interface UserRegisterForm extends UserRegister {
 }
 
 function SignUp() {
+  const { t } = useTranslation()
   const { signUpMutation } = useAuth()
   const {
     register,
@@ -83,9 +85,9 @@ function SignUp() {
                 id="full_name"
                 minLength={3}
                 {...register("full_name", {
-                  required: "Full Name is required",
+                  required: t('validation.fullNameRequired'),
                 })}
-                placeholder="Full Name"
+                placeholder={t('placeholders.fullName')}
                 type="text"
               />
             </InputGroup>
@@ -96,10 +98,10 @@ function SignUp() {
               <Input
                 id="email"
                 {...register("email", {
-                  required: "Email is required",
-                  pattern: emailPattern,
+                  required: t('validation.emailRequired'),
+                  pattern: getEmailPattern(t),
                 })}
-                placeholder="Email"
+                placeholder={t('placeholders.email')}
                 type="email"
               />
             </InputGroup>
@@ -107,24 +109,24 @@ function SignUp() {
           <PasswordInput
             type="password"
             startElement={<FiLock />}
-            {...register("password", passwordRules())}
-            placeholder="Password"
+            {...register("password", passwordRules(true, t))}
+            placeholder={t('placeholders.password')}
             errors={errors}
           />
           <PasswordInput
             type="confirm_password"
             startElement={<FiLock />}
-            {...register("confirm_password", confirmPasswordRules(getValues))}
-            placeholder="Confirm Password"
+            {...register("confirm_password", confirmPasswordRules(getValues, true, t))}
+            placeholder={t('placeholders.confirmPassword')}
             errors={errors}
           />
           <Button variant="solid" type="submit" loading={isSubmitting}>
-            Sign Up
+            {t('common.signup')}
           </Button>
           <Text>
-            Already have an account?{" "}
+            {t('common.alreadyHaveAccount')}{" "}
             <RouterLink to="/login" className="main-link">
-              Log In
+              {t('common.login')}
             </RouterLink>
           </Text>
         </Container>

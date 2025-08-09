@@ -3,15 +3,16 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
 import { FiBriefcase, FiHome, FiSettings, FiUsers, FiKey, FiCheckSquare, FiRefreshCw } from "react-icons/fi"
 import type { IconType } from "react-icons/lib"
+import { useTranslation } from "react-i18next"
 
 import type { UserPublic } from "@/client"
 
-const items = [
-  { icon: FiHome, title: "Dashboard", path: "/" },
-  { icon: FiCheckSquare, title: "Tasks", path: "/tasks" },
-  { icon: FiRefreshCw, title: "Human Loop", path: "/humanloop" },
-  { icon: FiKey, title: "API Keys", path: "/api-keys" },
-  { icon: FiSettings, title: "User Settings", path: "/settings" },
+const getItems = (t: any) => [
+  { icon: FiHome, title: t('navigation.dashboard'), path: "/" },
+  { icon: FiCheckSquare, title: t('navigation.tasks'), path: "/tasks" },
+  { icon: FiRefreshCw, title: t('navigation.humanLoop'), path: "/humanloop" },
+  { icon: FiKey, title: t('navigation.apiKeys'), path: "/api-keys" },
+  { icon: FiSettings, title: t('navigation.userSettings'), path: "/settings" },
 ]
 
 interface SidebarItemsProps {
@@ -25,11 +26,13 @@ interface Item {
 }
 
 const SidebarItems = ({ onClose }: SidebarItemsProps) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-
+  
+  const items = getItems(t)
   const finalItems: Item[] = currentUser?.is_superuser
-    ? [...items, { icon: FiUsers, title: "Admin", path: "/admin" }]
+    ? [...items, { icon: FiUsers, title: t('navigation.admin'), path: "/admin" }]
     : items
 
   const listItems = finalItems.map(({ icon, title, path }) => (
@@ -53,7 +56,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   return (
     <>
       <Text fontSize="xs" px={4} py={2} fontWeight="bold">
-        Menu
+        {t('common.menu')}
       </Text>
       <Box>{listItems}</Box>
     </>

@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiLock, FiMail } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import type { Body_login_login_access_token as AccessToken } from "@/client"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ import { InputGroup } from "@/components/ui/input-group"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 import Logo from "/assets/images/fastapi-logo.svg"
-import { emailPattern, passwordRules } from "../utils"
+import { getEmailPattern, passwordRules } from "../utils"
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/login")({
 })
 
 function Login() {
+  const { t } = useTranslation()
   const { loginMutation, error, resetError } = useAuth()
   const {
     register,
@@ -82,10 +84,10 @@ function Login() {
             <Input
               id="username"
               {...register("username", {
-                required: "Username is required",
-                pattern: emailPattern,
+                required: t('validation.usernameRequired'),
+                pattern: getEmailPattern(t),
               })}
-              placeholder="Email"
+              placeholder={t('placeholders.email')}
               type="email"
             />
           </InputGroup>
@@ -93,20 +95,20 @@ function Login() {
         <PasswordInput
           type="password"
           startElement={<FiLock />}
-          {...register("password", passwordRules())}
-          placeholder="Password"
+          {...register("password", passwordRules(true, t))}
+          placeholder={t('placeholders.password')}
           errors={errors}
         />
         <RouterLink to="/recover-password" className="main-link">
-          Forgot Password?
+          {t('common.forgotPassword')}
         </RouterLink>
         <Button variant="solid" type="submit" loading={isSubmitting} size="md">
-          Log In
+          {t('common.login')}
         </Button>
         <Text>
-          Don't have an account?{" "}
+          {t('common.dontHaveAccount')}{" "}
           <RouterLink to="/signup" className="main-link">
-            Sign Up
+            {t('common.signup')}
           </RouterLink>
         </Text>
       </Container>

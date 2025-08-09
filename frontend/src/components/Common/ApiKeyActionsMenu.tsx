@@ -1,5 +1,6 @@
 import { IconButton } from "@chakra-ui/react"
 import { FiEdit, FiMoreHorizontal, FiTrash2 } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import type { ApiKeyPublic } from "@/client/ApiKeysService"
 import {
@@ -20,6 +21,7 @@ export const ApiKeyActionsMenu = ({
   onEdit,
   onDelete,
 }: ApiKeyActionsMenuProps) => {
+  const { t } = useTranslation()
   return (
     <MenuRoot>
       <MenuTrigger asChild>
@@ -34,7 +36,7 @@ export const ApiKeyActionsMenu = ({
       <MenuContent>
         <MenuItem value="edit" onClick={onEdit}>
           <FiEdit />
-          编辑
+          {t("apiKeys.edit")}
         </MenuItem>
         <MenuItem
           value="delete"
@@ -43,7 +45,7 @@ export const ApiKeyActionsMenu = ({
           _hover={{ bg: "red.50" }}
         >
           <FiTrash2 />
-          删除
+          {t("apiKeys.delete")}
         </MenuItem>
       </MenuContent>
     </MenuRoot>

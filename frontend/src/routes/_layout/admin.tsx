@@ -1,6 +1,7 @@
 import { Badge, Container, Flex, Heading, Table } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { type UserPublic, UsersService } from "@/client"
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/_layout/admin")({
 })
 
 function UsersTable() {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const navigate = useNavigate({ from: Route.fullPath })
@@ -61,11 +63,11 @@ function UsersTable() {
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader w="sm">Full name</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Email</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Role</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Status</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("admin.fullName")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("admin.email")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("admin.role")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("admin.status")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("admin.actions")}</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -75,7 +77,7 @@ function UsersTable() {
                 {user.full_name || "N/A"}
                 {currentUser?.id === user.id && (
                   <Badge ml="1" colorScheme="teal">
-                    You
+                    {t("admin.you")}
                   </Badge>
                 )}
               </Table.Cell>
@@ -83,9 +85,9 @@ function UsersTable() {
                 {user.email}
               </Table.Cell>
               <Table.Cell>
-                {user.is_superuser ? "Superuser" : "User"}
+                {user.is_superuser ? t("admin.superuser") : t("admin.user")}
               </Table.Cell>
-              <Table.Cell>{user.is_active ? "Active" : "Inactive"}</Table.Cell>
+              <Table.Cell>{user.is_active ? t("admin.active") : t("admin.inactive")}</Table.Cell>
               <Table.Cell>
                 <UserActionsMenu
                   user={user}
@@ -114,10 +116,12 @@ function UsersTable() {
 }
 
 function Admin() {
+  const { t } = useTranslation()
+  
   return (
     <Container maxW="full">
       <Heading size="lg" pt={12}>
-        Users Management
+        {t("admin.usersManagement")}
       </Heading>
 
       <AddUser />

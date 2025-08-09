@@ -10,6 +10,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import {
   type ApiError,
@@ -19,10 +20,11 @@ import {
 } from "@/client"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
-import { emailPattern, handleError } from "@/utils"
+import { getEmailPattern, handleError } from "@/utils"
 import { Field } from "../ui/field"
 
 const UserInformation = () => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
   const [editMode, setEditMode] = useState(false)
@@ -51,7 +53,7 @@ const UserInformation = () => {
       UsersService.updateUserMe({ requestBody: data }),
     onSuccess: (data) => {
       queryClient.setQueryData(["currentUser"], data);
-      showSuccessToast("User updated successfully.")
+      showSuccessToast(t("userSettings.userUpdatedSuccessfully"))
     },
     onError: (err: ApiError) => {
       handleError(err)
@@ -74,14 +76,14 @@ const UserInformation = () => {
     <>
       <Container maxW="full">
         <Heading size="sm" py={4}>
-          User Information
+          {t("userSettings.userInformation")}
         </Heading>
         <Box
           w={{ sm: "full", md: "sm" }}
           as="form"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <Field label="Full name">
+          <Field label={t("userSettings.fullName")}>
             {editMode ? (
               <Input
                 {...register("full_name", { maxLength: 30 })}
@@ -102,15 +104,15 @@ const UserInformation = () => {
           </Field>
           <Field
             mt={4}
-            label="Email"
+            label={t("userSettings.email")}
             invalid={!!errors.email}
             errorText={errors.email?.message}
           >
             {editMode ? (
               <Input
                 {...register("email", {
-                  required: "Email is required",
-                  pattern: emailPattern,
+                  required: t("validation.emailRequired"),
+                  pattern: getEmailPattern(t),
                 })}
                 type="email"
                 size="md"
@@ -129,7 +131,7 @@ const UserInformation = () => {
               loading={editMode ? isSubmitting : false}
               disabled={editMode ? !isDirty || !getValues("email") : false}
             >
-              {editMode ? "Save" : "Edit"}
+              {editMode ? t("userSettings.save") : t("userSettings.edit")}
             </Button>
             {editMode && (
               <Button
@@ -138,7 +140,7 @@ const UserInformation = () => {
                 onClick={onCancel}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("userSettings.cancel")}
               </Button>
             )}
           </Flex>

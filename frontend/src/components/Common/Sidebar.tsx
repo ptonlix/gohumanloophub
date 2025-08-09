@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { FaBars } from "react-icons/fa"
 import { FiLogOut } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import type { UserPublic } from "@/client"
 import useAuth from "@/hooks/useAuth"
@@ -17,6 +18,7 @@ import {
 import SidebarItems from "./SidebarItems"
 
 const Sidebar = () => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
   const { logout } = useAuth()
@@ -61,12 +63,12 @@ const Sidebar = () => {
                   py={2}
                 >
                   <FiLogOut />
-                  <Text>Log Out</Text>
+                  <Text>{t('common.logout')}</Text>
                 </Flex>
               </Box>
               {currentUser?.email && (
                 <Text fontSize="sm" p={2} truncate maxW="sm">
-                  Logged in as: {currentUser.email}
+                  {t('common.loggedInAs')}: {currentUser.email}
                 </Text>
               )}
             </Flex>

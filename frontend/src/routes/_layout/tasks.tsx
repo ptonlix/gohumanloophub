@@ -14,6 +14,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
 import { FiCheckCircle, FiClock, FiAlertCircle, FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
 import { BsThreeDotsVertical } from "react-icons/bs"
+import { useTranslation } from "react-i18next"
 
 import {
   PaginationItems,
@@ -130,6 +131,7 @@ export const Route = createFileRoute("/_layout/tasks")({
 })
 
 function TasksTable() {
+  const { t } = useTranslation()
   const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
 
@@ -148,7 +150,7 @@ function TasksTable() {
   if (isLoading) {
     return (
       <Container maxW="7xl" py={8}>
-        <Text>加载中...</Text>
+        <Text>{t("tasks.loading")}</Text>
       </Container>
     )
   }
@@ -161,9 +163,9 @@ function TasksTable() {
             <FiSearch />
           </EmptyState.Indicator>
           <VStack textAlign="center">
-            <EmptyState.Title>暂无任务数据</EmptyState.Title>
+            <EmptyState.Title>{t("tasks.noData")}</EmptyState.Title>
             <EmptyState.Description>
-              当前没有任务记录，请稍后再试
+              {t("tasks.noDataDescription")}
             </EmptyState.Description>
           </VStack>
         </EmptyState.Content>
@@ -176,14 +178,14 @@ function TasksTable() {
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader w="md">任务ID</Table.ColumnHeader>
-            <Table.ColumnHeader w="md">对话统计</Table.ColumnHeader>
-            <Table.ColumnHeader w="md">请求统计</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">数据源</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">数据收集时间</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">创建时间</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">更新时间</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">操作</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">{t("tasks.taskId")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">{t("tasks.conversationStats")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="md">{t("tasks.requestStats")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("tasks.dataSource")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("tasks.dataCollectionTime")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("tasks.createdAt")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("tasks.updatedAt")}</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">{t("tasks.actions")}</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -199,7 +201,7 @@ function TasksTable() {
                     </Text>
                     {task.user_id && (
                       <Text fontSize="xs" color="gray.500">
-                        用户: {task.user_id.slice(-8)}
+                        {t("tasks.user")}: {task.user_id.slice(-8)}
                       </Text>
                     )}
                   </VStack>
@@ -292,10 +294,11 @@ function TasksTable() {
 }
 
 function Tasks() {
+  const { t } = useTranslation()
   return (
     <Container maxW="full">
       <Heading size="lg" pt={12}>
-        任务管理
+        {t("tasks.title")}
       </Heading>
       <TasksTable />
     </Container>

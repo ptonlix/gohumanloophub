@@ -7,7 +7,6 @@ import {
   Grid,
   Heading,
   HStack,
-  Input,
   Stat,
   Table,
   Text,
@@ -16,7 +15,11 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import DatePicker, { registerLocale } from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import { zhCN, enUS } from "date-fns/locale"
 
 import { HumanLoopService, type HumanLoopRequest } from "@/client"
 import {
@@ -33,7 +36,7 @@ const humanLoopSearchSchema = z.object({
   page: z.number().catch(1),
   loop_type: z.enum(['conversation', 'approval', 'information']).optional(),
   status: z.enum(['pending', 'inprogress', 'completed', 'cancelled', 'approved', 'rejected', 'error', 'expired']).optional(),
-  platform: z.enum(['wechat', 'feishu', 'other']).optional(),
+  platform: z.enum(['GoHumanLoop', 'wework', 'feishu', 'other']).optional(),
   created_at_start: z.string().optional(),
   created_at_end: z.string().optional(),
 })
@@ -111,7 +114,8 @@ const getLoopTypeColor = (loopType: string) => {
 // 平台标签颜色映射
 const getPlatformColor = (platform: string) => {
   const colorMap: Record<string, string> = {
-    wechat: 'green',
+    GoHumanLoop: 'orange',
+    wework: 'green',
     feishu: 'blue',
     other: 'gray',
   }
@@ -119,6 +123,7 @@ const getPlatformColor = (platform: string) => {
 }
 
 function StatsCards() {
+  const { t } = useTranslation()
   const { data: statsData, isLoading } = useQuery(getStatsQueryOptions())
 
   if (isLoading) {
@@ -139,27 +144,32 @@ function StatsCards() {
   return (
     <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} mb={6}>
       <Stat.Root>
-        <Stat.Label>总请求数</Stat.Label>
+        <Stat.Label>{t('humanLoop.totalRequests')}</Stat.Label>
         <Stat.ValueText>{stats.total}</Stat.ValueText>
       </Stat.Root>
       <Stat.Root>
-        <Stat.Label>待处理</Stat.Label>
+        <Stat.Label>{t('humanLoop.pending')}</Stat.Label>
         <Stat.ValueText color="orange.500">{stats.by_status.pending}</Stat.ValueText>
       </Stat.Root>
       <Stat.Root>
-        <Stat.Label>处理中</Stat.Label>
+        <Stat.Label>{t('humanLoop.inProgress')}</Stat.Label>
         <Stat.ValueText color="blue.500">{stats.by_status.inprogress}</Stat.ValueText>
       </Stat.Root>
       <Stat.Root>
-        <Stat.Label>已完成</Stat.Label>
+        <Stat.Label>{t('humanLoop.completed')}</Stat.Label>
         <Stat.ValueText color="green.500">{stats.by_status.completed + stats.by_status.approved}</Stat.ValueText>
       </Stat.Root>
     </Grid>
   )
 }
 
+// 注册日期选择器的语言包
+registerLocale('zh', zhCN)
+registerLocale('en', enUS)
+
 function FilterBar() {
-  const navigate = useNavigate({ from: Route.fullPath })
+  const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const { loop_type, status, platform, created_at_start, created_at_end } = Route.useSearch()
 
   const updateFilter = (key: string, value: string) => {
@@ -181,7 +191,7 @@ function FilterBar() {
   return (
     <HStack gap={4} mb={6}>
       <Box>
-        <Text fontSize="sm" mb={1}>循环类型</Text>
+        <Text fontSize="sm" mb={1}>{t('humanLoop.loopType')}</Text>
         <select
           value={loop_type || ''}
           onChange={(e) => updateFilter('loop_type', e.target.value)}
@@ -194,14 +204,14 @@ function FilterBar() {
             backgroundColor: 'white'
           }}
         >
-          <option value="">全部类型</option>
-          <option value="conversation">对话模式</option>
-          <option value="approval">审批模式</option>
-          <option value="information">信息获取</option>
+          <option value="">{t('humanLoop.allTypes')}</option>
+          <option value="conversation">{t('humanLoop.conversationMode')}</option>
+          <option value="approval">{t('humanLoop.approvalMode')}</option>
+          <option value="information">{t('humanLoop.informationGathering')}</option>
         </select>
       </Box>
       <Box>
-        <Text fontSize="sm" mb={1}>状态</Text>
+        <Text fontSize="sm" mb={1}>{t('humanLoop.status')}</Text>
         <select
           value={status || ''}
           onChange={(e) => updateFilter('status', e.target.value)}
@@ -214,19 +224,19 @@ function FilterBar() {
             backgroundColor: 'white'
           }}
         >
-          <option value="">全部状态</option>
-          <option value="pending">待处理</option>
-          <option value="inprogress">处理中</option>
-          <option value="completed">已完成</option>
-          <option value="approved">已审批</option>
-          <option value="rejected">已拒绝</option>
-          <option value="cancelled">已取消</option>
-          <option value="error">错误</option>
-          <option value="expired">已过期</option>
+          <option value="">{t('humanLoop.allStatuses')}</option>
+          <option value="pending">{t('humanLoop.pending')}</option>
+          <option value="inprogress">{t('humanLoop.inProgress')}</option>
+          <option value="completed">{t('humanLoop.completed')}</option>
+          <option value="approved">{t('humanLoop.approved')}</option>
+          <option value="rejected">{t('humanLoop.rejected')}</option>
+          <option value="cancelled">{t('humanLoop.cancelled')}</option>
+          <option value="error">{t('humanLoop.error')}</option>
+          <option value="expired">{t('humanLoop.expired')}</option>
         </select>
       </Box>
       <Box>
-        <Text fontSize="sm" mb={1}>平台</Text>
+        <Text fontSize="sm" mb={1}>{t('humanLoop.platform')}</Text>
         <select
           value={platform || ''}
           onChange={(e) => updateFilter('platform', e.target.value)}
@@ -239,31 +249,33 @@ function FilterBar() {
             backgroundColor: 'white'
           }}
         >
-          <option value="">全部平台</option>
-          <option value="GoHumanLoop">GoHumanLoop</option>
-          <option value="wework">企业微信</option>
-          <option value="feishu">飞书</option>
-          <option value="other">其他</option>
+          <option value="">{t('humanLoop.allPlatforms')}</option>
+          <option value="GoHumanLoop">{t('humanLoop.goHumanLoop')}</option>
+          <option value="wework">{t('humanLoop.wework')}</option>
+          <option value="feishu">{t('humanLoop.feishu')}</option>
+          <option value="other">{t('humanLoop.other')}</option>
         </select>
       </Box>
-      <Box>
-         <Text fontSize="sm" mb={1}>开始日期</Text>
-         <Input
-           type="date"
-           value={created_at_start || ''}
-           onChange={(e) => updateDateFilter('created_at_start', e.target.value)}
-           size="sm"
-           width="160px"
+      <Box width="160px">
+         <Text fontSize="sm" mb={1}>{t('humanLoop.startDate')}</Text>
+         <DatePicker
+           selected={created_at_start ? new Date(created_at_start) : null}
+           onChange={(date) => updateDateFilter('created_at_start', date ? date.toISOString().split('T')[0] : '')}
+           placeholderText={t('humanLoop.startDatePlaceholder')}
+           dateFormat="yyyy-MM-dd"
+           className="chakra-input css-4plu0y"
+           locale={i18n.language === 'zh' ? 'zh' : 'en'}
          />
        </Box>
-       <Box>
-         <Text fontSize="sm" mb={1}>结束日期</Text>
-         <Input
-           type="date"
-           value={created_at_end || ''}
-           onChange={(e) => updateDateFilter('created_at_end', e.target.value)}
-           size="sm"
-           width="160px"
+       <Box width="160px">
+         <Text fontSize="sm" mb={1}>{t('humanLoop.endDate')}</Text>
+         <DatePicker
+           selected={created_at_end ? new Date(created_at_end) : null}
+           onChange={(date) => updateDateFilter('created_at_end', date ? date.toISOString().split('T')[0] : '')}
+           placeholderText={t('humanLoop.endDatePlaceholder')}
+           dateFormat="yyyy-MM-dd"
+           className="chakra-input css-4plu0y"
+           locale={i18n.language === 'zh' ? 'zh' : 'en'}
          />
        </Box>
     </HStack>
@@ -271,6 +283,7 @@ function FilterBar() {
 }
 
 function RequestsTable() {
+  const { t } = useTranslation()
   const navigate = useNavigate({ from: Route.fullPath })
   const { page, loop_type, status, platform, created_at_start, created_at_end } = Route.useSearch()
   const [selectedRequest, setSelectedRequest] = useState<HumanLoopRequest | null>(null)
@@ -304,12 +317,12 @@ function RequestsTable() {
       <Table.Root size={{ base: 'sm', md: 'md' }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader>请求ID</Table.ColumnHeader>
-            <Table.ColumnHeader>类型</Table.ColumnHeader>
-            <Table.ColumnHeader>平台</Table.ColumnHeader>
-            <Table.ColumnHeader>状态</Table.ColumnHeader>
-            <Table.ColumnHeader>创建时间</Table.ColumnHeader>
-            <Table.ColumnHeader>操作</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.requestId')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.type')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.platform')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.status')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.createdAt')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.actions')}</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -333,13 +346,13 @@ function RequestsTable() {
       <Table.Root size={{ base: 'sm', md: 'md' }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader>请求ID</Table.ColumnHeader>
-            <Table.ColumnHeader>类型</Table.ColumnHeader>
-            <Table.ColumnHeader>平台</Table.ColumnHeader>
-            <Table.ColumnHeader>状态</Table.ColumnHeader>
-            <Table.ColumnHeader>消息内容</Table.ColumnHeader>
-            <Table.ColumnHeader>创建时间</Table.ColumnHeader>
-            <Table.ColumnHeader>操作</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.requestId')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.type')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.platform')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.status')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.messageContent')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.createdAt')}</Table.ColumnHeader>
+            <Table.ColumnHeader>{t('humanLoop.actions')}</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -352,29 +365,29 @@ function RequestsTable() {
               </Table.Cell>
               <Table.Cell>
                 <Badge colorScheme={getLoopTypeColor(request.loop_type)}>
-                  {request.loop_type === 'conversation' && '对话模式'}
-                  {request.loop_type === 'approval' && '审批模式'}
-                  {request.loop_type === 'information' && '信息获取'}
+                  {request.loop_type === 'conversation' && t('humanLoop.conversationMode')}
+                  {request.loop_type === 'approval' && t('humanLoop.approvalMode')}
+                  {request.loop_type === 'information' && t('humanLoop.informationGathering')}
                 </Badge>
               </Table.Cell>
               <Table.Cell>
                 <Badge colorScheme={getPlatformColor(request.platform)}>
-                  {request.platform === 'GoHumanLoop' && 'GoHumanLoop平台'}
-                  {request.platform === 'wework' && '企业微信'}
-                  {request.platform === 'feishu' && '飞书'}
-                  {request.platform === 'other' && '其他'}
+                  {request.platform === 'GoHumanLoop' && t('humanLoop.goHumanLoop')}
+                  {request.platform === 'wework' && t('humanLoop.wework')}
+                  {request.platform === 'feishu' && t('humanLoop.feishu')}
+                  {request.platform === 'other' && t('humanLoop.other')}
                 </Badge>
               </Table.Cell>
               <Table.Cell>
                 <Badge colorScheme={getStatusColor(request.status)}>
-                  {request.status === 'pending' && '待处理'}
-                  {request.status === 'inprogress' && '处理中'}
-                  {request.status === 'completed' && '已完成'}
-                  {request.status === 'approved' && '已审批'}
-                  {request.status === 'rejected' && '已拒绝'}
-                  {request.status === 'cancelled' && '已取消'}
-                  {request.status === 'error' && '错误'}
-                  {request.status === 'expired' && '已过期'}
+                  {request.status === 'pending' && t('humanLoop.pending')}
+                  {request.status === 'inprogress' && t('humanLoop.inProgress')}
+                  {request.status === 'completed' && t('humanLoop.completed')}
+                  {request.status === 'approved' && t('humanLoop.approved')}
+                  {request.status === 'rejected' && t('humanLoop.rejected')}
+                  {request.status === 'cancelled' && t('humanLoop.cancelled')}
+                  {request.status === 'error' && t('humanLoop.error')}
+                  {request.status === 'expired' && t('humanLoop.expired')}
                 </Badge>
               </Table.Cell>
               <Table.Cell maxW="200px">
@@ -400,7 +413,7 @@ function RequestsTable() {
                     variant="outline"
                     onClick={() => handleViewDetail(request)}
                   >
-                    查看
+                    {t('humanLoop.view')}
                   </Button>
                   {['pending', 'inprogress'].includes(request.status) && (
                     <Button
@@ -408,7 +421,7 @@ function RequestsTable() {
                       colorScheme="blue"
                       onClick={() => handleProcessRequest(request)}
                     >
-                      处理
+                      {t('humanLoop.process')}
                     </Button>
                   )}
                 </HStack>
@@ -457,11 +470,12 @@ function RequestsTable() {
 }
 
 function HumanLoop() {
+  const { t } = useTranslation()
   return (
     <Container maxW="full">
       <VStack align="stretch" gap={6}>
         <Heading size="lg" pt={4}>
-          人机协同管理
+          {t('humanLoop.title')}
         </Heading>
 
         <StatsCards />

@@ -1,5 +1,6 @@
 import { Button, Text, useDisclosure } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useTranslation } from "react-i18next"
 
 import { type ApiKeyPublic, ApiKeysService } from "@/client/ApiKeysService"
 import useCustomToast from "@/hooks/useCustomToast"
@@ -23,6 +24,7 @@ interface DeleteApiKeyProps {
 }
 
 const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: DeleteApiKeyProps) => {
+  const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
   
@@ -55,12 +57,12 @@ const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }:
     <DialogRoot open={isOpen} onOpenChange={({ open }) => !open && handleClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>删除 API Key</DialogTitle>
+          <DialogTitle>{t("apiKeys.deleteApiKey")}</DialogTitle>
         </DialogHeader>
         <DialogCloseTrigger />
         <DialogBody pb={6}>
           <Text>
-            确定要删除 API Key "{apiKey.name}" 吗？此操作无法撤销。
+            {t("apiKeys.deleteConfirmation", { name: apiKey.name })}
           </Text>
         </DialogBody>
         <DialogFooter gap={3}>
@@ -70,10 +72,10 @@ const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }:
             onClick={handleDelete}
             loading={mutation.isPending}
           >
-            删除
+            {t("apiKeys.delete")}
           </Button>
           <DialogActionTrigger asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">{t("apiKeys.cancel")}</Button>
           </DialogActionTrigger>
         </DialogFooter>
       </DialogContent>

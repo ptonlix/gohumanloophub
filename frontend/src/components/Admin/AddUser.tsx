@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Controller, type SubmitHandler, useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { type UserCreate, UsersService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
@@ -33,6 +34,7 @@ interface UserCreateForm extends UserCreate {
 }
 
 const AddUser = () => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -60,7 +62,7 @@ const AddUser = () => {
     mutationFn: (data: UserCreate) =>
       UsersService.createUser({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User created successfully.")
+      showSuccessToast(t("admin.addUser.userCreatedSuccess"))
       reset()
       setIsOpen(false)
     },
@@ -86,32 +88,32 @@ const AddUser = () => {
       <DialogTrigger asChild>
         <Button value="add-user" my={4}>
           <FaPlus fontSize="16px" />
-          Add User
+          {t("admin.addUser.buttonText")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add User</DialogTitle>
+            <DialogTitle>{t("admin.addUser.title")}</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              Fill in the form below to add a new user to the system.
+              {t("admin.addUser.description")}
             </Text>
             <VStack gap={4}>
               <Field
                 required
                 invalid={!!errors.email}
                 errorText={errors.email?.message}
-                label="Email"
+                label={t("admin.addUser.emailLabel")}
               >
                 <Input
                   id="email"
                   {...register("email", {
-                    required: "Email is required",
+                    required: t("admin.addUser.emailRequired"),
                     pattern: emailPattern,
                   })}
-                  placeholder="Email"
+                  placeholder={t("admin.addUser.emailPlaceholder")}
                   type="email"
                 />
               </Field>
@@ -119,12 +121,12 @@ const AddUser = () => {
               <Field
                 invalid={!!errors.full_name}
                 errorText={errors.full_name?.message}
-                label="Full Name"
+                label={t("admin.addUser.fullNameLabel")}
               >
                 <Input
                   id="name"
                   {...register("full_name")}
-                  placeholder="Full name"
+                  placeholder={t("admin.addUser.fullNamePlaceholder")}
                   type="text"
                 />
               </Field>
@@ -133,18 +135,18 @@ const AddUser = () => {
                 required
                 invalid={!!errors.password}
                 errorText={errors.password?.message}
-                label="Set Password"
+                label={t("admin.addUser.passwordLabel")}
               >
                 <Input
                   id="password"
                   {...register("password", {
-                    required: "Password is required",
+                    required: t("admin.addUser.passwordRequired"),
                     minLength: {
                       value: 8,
-                      message: "Password must be at least 8 characters",
+                      message: t("admin.addUser.passwordMinLength"),
                     },
                   })}
-                  placeholder="Password"
+                  placeholder={t("admin.addUser.passwordPlaceholder")}
                   type="password"
                 />
               </Field>
@@ -153,17 +155,17 @@ const AddUser = () => {
                 required
                 invalid={!!errors.confirm_password}
                 errorText={errors.confirm_password?.message}
-                label="Confirm Password"
+                label={t("admin.addUser.confirmPasswordLabel")}
               >
                 <Input
                   id="confirm_password"
                   {...register("confirm_password", {
-                    required: "Please confirm your password",
+                    required: t("admin.addUser.confirmPasswordRequired"),
                     validate: (value) =>
                       value === getValues().password ||
-                      "The passwords do not match",
+                      t("admin.addUser.passwordMismatch"),
                   })}
-                  placeholder="Password"
+                  placeholder={t("admin.addUser.passwordPlaceholder")}
                   type="password"
                 />
               </Field>
@@ -179,7 +181,7 @@ const AddUser = () => {
                       checked={field.value}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is superuser?
+                      {t("admin.addUser.isSuperuser")}
                     </Checkbox>
                   </Field>
                 )}
@@ -193,7 +195,7 @@ const AddUser = () => {
                       checked={field.value}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is active?
+                      {t("admin.addUser.isActive")}
                     </Checkbox>
                   </Field>
                 )}
@@ -208,7 +210,7 @@ const AddUser = () => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("admin.addUser.cancel")}
               </Button>
             </DialogActionTrigger>
             <Button
@@ -217,7 +219,7 @@ const AddUser = () => {
               disabled={!isValid}
               loading={isSubmitting}
             >
-              Save
+              {t("admin.addUser.save")}
             </Button>
           </DialogFooter>
         </form>

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FiTrash2 } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import { TasksService } from "@/client/TasksService"
 import {
@@ -18,6 +19,7 @@ import {
 import useCustomToast from "@/hooks/useCustomToast"
 
 const DeleteTask = ({ taskId }: { taskId: string }) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -33,11 +35,11 @@ const DeleteTask = ({ taskId }: { taskId: string }) => {
   const mutation = useMutation({
     mutationFn: deleteTask,
     onSuccess: () => {
-      showSuccessToast("任务删除成功")
+      showSuccessToast(t("tasks.deleteSuccess"))
       setIsOpen(false)
     },
     onError: () => {
-      showErrorToast("删除任务时发生错误")
+      showErrorToast(t("tasks.deleteError"))
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
@@ -59,7 +61,7 @@ const DeleteTask = ({ taskId }: { taskId: string }) => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">
           <FiTrash2 fontSize="16px" />
-          删除
+          {t("tasks.delete")}
         </Button>
       </DialogTrigger>
 
@@ -67,11 +69,11 @@ const DeleteTask = ({ taskId }: { taskId: string }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogCloseTrigger />
           <DialogHeader>
-            <DialogTitle>删除任务</DialogTitle>
+            <DialogTitle>{t("tasks.deleteTask")}</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              此任务将被永久删除。您确定要继续吗？此操作无法撤销。
+              {t("tasks.deleteConfirmation")}
             </Text>
           </DialogBody>
 
@@ -82,7 +84,7 @@ const DeleteTask = ({ taskId }: { taskId: string }) => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                取消
+                {t("tasks.cancel")}
               </Button>
             </DialogActionTrigger>
             <Button
@@ -91,7 +93,7 @@ const DeleteTask = ({ taskId }: { taskId: string }) => {
               type="submit"
               loading={isSubmitting}
             >
-              删除
+              {t("tasks.delete")}
             </Button>
           </DialogFooter>
         </form>
