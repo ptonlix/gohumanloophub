@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     MONGODB_DB: str = "app"
     MONGODB_USER: str = ""
     MONGODB_PASSWORD: str = ""
+    
+    # Redis settings
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
+    REDIS_DB: int = 0
 
     @computed_field  # type: ignore[prop-decorator]
     @property

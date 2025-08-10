@@ -26,6 +26,22 @@ class UserRegister(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
 
 
+class EmailVerificationRequest(SQLModel):
+    email: EmailStr = Field(max_length=255)
+
+
+class EmailVerificationCode(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    code: str = Field(min_length=6, max_length=6)
+
+
+class UserRegisterWithCode(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=40)
+    full_name: str | None = Field(default=None, max_length=255)
+    verification_code: str = Field(min_length=6, max_length=6)
+
+
 # Properties to receive via API on update, all are optional
 class UserUpdate(UserBase):
     email: EmailStr | None = Field(default=None, max_length=255)  # type: ignore

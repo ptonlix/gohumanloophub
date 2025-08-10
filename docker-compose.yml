@@ -38,6 +38,25 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=${MONGODB_DB:-app}
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - traefik-public
+      - default
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    env_file:
+      - .env
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   adminer:
     image: adminer
     restart: always
@@ -75,6 +94,9 @@ services:
       mongodb:
         condition: service_started
         restart: true
+      redis:
+        condition: service_healthy
+        restart: true
     command: bash scripts/prestart.sh
     env_file:
       - .env
@@ -100,6 +122,10 @@ services:
       - MONGODB_DB=${MONGODB_DB:-app}
       - MONGODB_USER=${MONGODB_USER}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
       - SENTRY_DSN=${SENTRY_DSN}
 
   backend:
@@ -114,6 +140,8 @@ services:
       mongodb:
         condition: service_started
         restart: true
+      redis:
+        condition: service_healthy
       prestart:
         condition: service_completed_successfully
     env_file:
@@ -140,6 +168,10 @@ services:
       - MONGODB_DB=${MONGODB_DB:-app}
       - MONGODB_USER=${MONGODB_USER}
       - MONGODB_PASSWORD=${MONGODB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
       - SENTRY_DSN=${SENTRY_DSN}
 
     healthcheck:
@@ -199,6 +231,7 @@ services:
 volumes:
   app-db-data:
   mongodb-data:
+  redis-data:
 
 networks:
   traefik-public:
