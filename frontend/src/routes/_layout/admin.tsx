@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import { FiUsers } from "react-icons/fi"
 
 import { type UserPublic, UsersService } from "@/client"
 import AddUser from "@/components/Admin/AddUser"
@@ -120,9 +121,11 @@ function Admin() {
   
   return (
     <Container maxW="full">
-      <Heading size="lg" pt={12}>
-        {t("admin.usersManagement")}
-      </Heading>
+      <Flex justify="space-between" align="center" pt={12} mb={6}>
+        <Heading size="lg">
+          {t("admin.usersManagement")}
+        </Heading>
+      </Flex>
 
       <AddUser />
       <UsersTable />
