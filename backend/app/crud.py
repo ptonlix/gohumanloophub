@@ -3,7 +3,7 @@ from typing import Any
 import secrets
 from datetime import datetime
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select, desc
 
 from app.core.security import get_password_hash, verify_password
 from app.models.models import ( User, UserCreate, UserUpdate,
@@ -81,7 +81,7 @@ def update_api_key_last_used(*, session: Session, api_key: APIKey) -> APIKey:
 
 
 def get_user_api_keys(*, session: Session, owner_id: uuid.UUID) -> list[APIKey]:
-    statement = select(APIKey).where(APIKey.owner_id == owner_id)
+    statement = select(APIKey).where(APIKey.owner_id == owner_id).order_by(desc(APIKey.created_at))
     return list(session.exec(statement).all())
 
 
