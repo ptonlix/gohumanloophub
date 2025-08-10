@@ -69,11 +69,15 @@ interface DashboardData {
   }
 }
 
-function getDashboardQueryOptions() {
+function getDashboardQueryOptions(isSuperuser: boolean = false) {
+  const endpoint = isSuperuser 
+    ? `${OpenAPI.BASE}/api/v1/humanloop/admin/dashboard/stats`
+    : `${OpenAPI.BASE}/api/v1/humanloop/admin/dashboard/user-stats`
+    
   return {
-    queryKey: ["dashboard"],
+    queryKey: ["dashboard", isSuperuser ? "admin" : "user"],
     queryFn: async (): Promise<{ success: boolean; data: DashboardData }> => {
-      const response = await fetch(`${OpenAPI.BASE}/api/v1/humanloop/admin/dashboard/stats`, {
+      const response = await fetch(endpoint, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
@@ -390,7 +394,7 @@ function RecentHumanLoopTable({ requests }: { requests: DashboardData["human_loo
 function Dashboard() {
   const { t } = useTranslation()
   const { user: currentUser } = useAuth()
-  const { data, isLoading, error } = useQuery(getDashboardQueryOptions())
+  const { data, isLoading, error } = useQuery(getDashboardQueryOptions(currentUser?.is_superuser || false))
 
   if (isLoading) {
     return (

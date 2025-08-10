@@ -65,6 +65,17 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
     return current_user
 
 
+def get_current_active_admin(current_user: CurrentUser) -> User:
+    """获取当前活跃的管理员用户（包括超级管理员和普通管理员）"""
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=400, detail="Inactive user"
+        )
+    # 这里可以根据需要添加更多管理员权限检查逻辑
+    # 目前所有活跃用户都可以访问普通管理员功能
+    return current_user
+
+
 def get_current_user_by_api_key(
     session: SessionDep, token: TokenDep
 ) -> User:
