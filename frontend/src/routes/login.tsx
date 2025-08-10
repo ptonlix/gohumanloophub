@@ -1,4 +1,4 @@
-import { Container, Image, Input, Text } from "@chakra-ui/react"
+import { Container, Image, Input, Text, Box } from "@chakra-ui/react"
 import {
   Link as RouterLink,
   createFileRoute,
@@ -14,6 +14,7 @@ import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import AnimatedBackground from "@/components/AnimatedBackground"
 import Logo from "/assets/images/gohumanloop-logo.svg"
 import { getEmailPattern, passwordRules } from "../utils"
 
@@ -58,17 +59,27 @@ function Login() {
 
   return (
     <>
+      <AnimatedBackground />
       <Container
         as="form"
         onSubmit={handleSubmit(onSubmit)}
-        h="100vh"
-        maxW="sm"
+        h="auto"
+        maxW="xs"
         alignItems="stretch"
         justifyContent="center"
         gap={4}
         centerContent
-        bg="ui.background"
-        p={8}
+        bg="rgba(255, 255, 255, 0.95)"
+        backdropFilter="blur(10px)"
+        borderRadius="xl"
+        boxShadow="0 8px 32px rgba(0, 0, 0, 0.1)"
+        border="1px solid rgba(255, 255, 255, 0.2)"
+        p={6}
+        position="absolute"
+        top="50%"
+        left="50%"
+        transform="translate(-50%, -50%)"
+        zIndex={10}
       >
         <Image
           src={Logo}
