@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, redirect } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiMail } from "react-icons/fi"
+import { useTranslation } from "react-i18next"
 
 import { type ApiError, LoginService } from "@/client"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/recover-password")({
 })
 
 function RecoverPassword() {
+  const { t } = useTranslation()
   const {
     register,
     handleSubmit,
@@ -45,7 +47,7 @@ function RecoverPassword() {
   const mutation = useMutation({
     mutationFn: recoverPassword,
     onSuccess: () => {
-      showSuccessToast("Password recovery email sent successfully.")
+      showSuccessToast(t("recoverPassword.emailSentSuccess"))
       reset()
     },
     onError: (err: ApiError) => {
@@ -69,26 +71,26 @@ function RecoverPassword() {
       centerContent
     >
       <Heading size="xl" color="ui.main" textAlign="center" mb={2}>
-        Password Recovery
+        {t("recoverPassword.title")}
       </Heading>
       <Text textAlign="center">
-        A password recovery email will be sent to the registered account.
+        {t("recoverPassword.description")}
       </Text>
       <Field invalid={!!errors.email} errorText={errors.email?.message}>
         <InputGroup w="100%" startElement={<FiMail />}>
           <Input
             id="email"
             {...register("email", {
-              required: "Email is required",
+              required: t("validation.emailRequired"),
               pattern: emailPattern,
             })}
-            placeholder="Email"
+            placeholder={t("common.email")}
             type="email"
           />
         </InputGroup>
       </Field>
       <Button variant="solid" type="submit" loading={isSubmitting}>
-        Continue
+        {t("common.continue")}
       </Button>
     </Container>
   )

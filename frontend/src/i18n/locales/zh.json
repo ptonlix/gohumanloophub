@@ -14,7 +14,8 @@
     "user": "用户",
     "myProfile": "我的资料",
     "menu": "菜单",
-    "language": "语言"
+    "language": "语言",
+    "continue": "继续"
   },
   "navigation": {
     "dashboard": "仪表板",
@@ -72,6 +73,11 @@
     "passwordMismatch": "密码不匹配",
     "invalidEmail": "请输入有效的邮箱地址",
     "passwordTooShort": "密码长度至少为8位"
+  },
+  "recoverPassword": {
+    "title": "密码恢复",
+    "description": "密码恢复邮件将发送到注册账户。",
+    "emailSentSuccess": "密码恢复邮件发送成功。"
   },
   "placeholders": {
     "email": "请输入邮箱",

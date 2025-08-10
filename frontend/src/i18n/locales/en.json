@@ -14,7 +14,8 @@
     "user": "User",
     "myProfile": "My Profile",
     "menu": "Menu",
-    "language": "Language"
+    "language": "Language",
+    "continue": "Continue"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -72,6 +73,11 @@
     "passwordMismatch": "Passwords do not match",
     "invalidEmail": "Please enter a valid email address",
     "passwordTooShort": "Password must be at least 8 characters long"
+  },
+  "recoverPassword": {
+    "title": "Password Recovery",
+    "description": "A password recovery email will be sent to the registered account.",
+    "emailSentSuccess": "Password recovery email sent successfully."
   },
   "placeholders": {
     "email": "Enter your email",
