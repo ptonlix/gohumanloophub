@@ -9,6 +9,9 @@ python app/backend_pre_start.py
 # Check MongoDB connection
 python app/mongodb_pre_start.py
 
+# Check Redis connection
+python app/redis_pre_start.py
+
 # Run migrations
 alembic upgrade head
 
