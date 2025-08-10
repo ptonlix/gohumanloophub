@@ -42,10 +42,15 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
         px={4}
         py={2}
         _hover={{
-          background: "gray.subtle",
+          background: "ui.muted",
+          color: "ui.mainHover",
         }}
         alignItems="center"
         fontSize="sm"
+        color="ui.secondary"
+        transition="all 0.2s"
+        borderRadius="md"
+        mx={2}
       >
         <Icon as={icon} alignSelf="center" />
         <Text ml={2}>{title}</Text>
@@ -55,7 +60,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
 
   return (
     <>
-      <Text fontSize="xs" px={4} py={2} fontWeight="bold">
+      <Text fontSize="sm" px={4} py={3} fontWeight="600" color="ui.main" letterSpacing="wide" textTransform="uppercase">
         {t('common.menu')}
       </Text>
       <Box>{listItems}</Box>

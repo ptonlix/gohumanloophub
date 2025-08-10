@@ -21,7 +21,7 @@ const UserMenu = () => {
       <Flex>
         <MenuRoot>
           <MenuTrigger asChild p={2}>
-            <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
+            <Button data-testid="user-menu" variant="outline" maxW="sm" truncate>
               <FaUserAstronaut fontSize="18" />
               <Text>{user?.full_name || t('common.user')}</Text>
             </Button>

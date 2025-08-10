@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="64" height="64"
+     viewBox="0 0 64 64"
+     version="1.1" role="img" aria-label="GoHumanLoop favicon">
+  <defs>
+    <!-- 黑到灰的线性渐变背景 -->
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#5a5a5a"/>
+    </linearGradient>
+    <!-- 环形渐变 -->
+    <linearGradient id="ringGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#c0c0c0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" />
+
+  <!-- 多个环形，表示连接与循环 -->
+  <circle cx="32" cy="32" r="18" fill="none" stroke="url(#ringGradient)" stroke-width="3" />
+  <circle cx="32" cy="32" r="12" fill="none" stroke="url(#ringGradient)" stroke-width="2" opacity="0.8" />
+  <circle cx="32" cy="32" r="6" fill="none" stroke="url(#ringGradient)" stroke-width="1.5" opacity="0.6" />
+</svg>

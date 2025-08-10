@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="400mm" height="64mm"
+     viewBox="0 0 400 64"
+     version="1.1" role="img" aria-label="GoHumanLoop logo">
+  <defs>
+    <!-- 黑到灰的线性渐变 -->
+    <linearGradient id="gradB2G" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="60%" stop-color="#3f3f3f"/>
+      <stop offset="100%" stop-color="#6b6b6b"/>
+    </linearGradient>
+
+    <!-- 轻微投影 -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="blur"/>
+      <feOffset in="blur" dx="0.8" dy="0.8" result="off"/>
+      <feMerge>
+        <feMergeNode in="off"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+      <feColorMatrix type="matrix"
+                     values="0 0 0 0 0
+                             0 0 0 0 0
+                             0 0 0 0 0
+                             0 0 0 0.35"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <text x="50%" y="50%"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          font-family="Helvetica, Arial, 'Segoe UI', Roboto, sans-serif"
+          font-weight="700"
+          font-size="54"
+          letter-spacing="-0.4"
+          fill="url(#gradB2G)">
+      GoHumanLoop
+    </text>
+  </g>
+</svg>

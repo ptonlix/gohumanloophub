@@ -14,7 +14,7 @@ import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
 import { PasswordInput } from "@/components/ui/password-input"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import Logo from "/assets/images/fastapi-logo.svg"
+import Logo from "/assets/images/gohumanloop-logo.svg"
 import { getEmailPattern, passwordRules } from "../utils"
 
 export const Route = createFileRoute("/login")({
@@ -67,6 +67,8 @@ function Login() {
         justifyContent="center"
         gap={4}
         centerContent
+        bg="ui.background"
+        p={8}
       >
         <Image
           src={Logo}

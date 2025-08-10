@@ -89,7 +89,7 @@ export const Route = createFileRoute("/_layout/humanloop")({
 // 状态标签颜色映射
 const getStatusColor = (status: string) => {
   const colorMap: Record<string, string> = {
-    pending: 'orange',
+    pending: 'yellow',
     inprogress: 'blue',
     completed: 'green',
     cancelled: 'gray',
