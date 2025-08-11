@@ -27,7 +27,7 @@ const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }:
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
-  
+
   const handleClose = () => {
     if (onCloseProp) {
       onCloseProp()

@@ -176,7 +176,7 @@ function SignUp() {
               />
             </InputGroup>
           </Field>
-          
+
           <Flex gap={2}>
             <Field flex={1} invalid={!!errors.verification_code} errorText={errors.verification_code?.message}>
               <InputGroup w="100%" startElement={<FiMail />}>

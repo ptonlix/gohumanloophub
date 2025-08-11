@@ -1,22 +1,21 @@
+import logging
 from collections.abc import Generator
 from typing import Annotated
-from datetime import datetime
 
 import jwt
-from fastapi import Depends, HTTPException, status, Header
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from pydantic import ValidationError
+from pymongo.database import Database
 from sqlmodel import Session
 
+from app import crud
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.models.models import TokenPayload, User
-from app import crud
-from pymongo.database import Database
 from app.core.mongodb import get_mongo_db
-import logging
+from app.models.models import TokenPayload, User
 
 logger = logging.getLogger(__name__)
 
@@ -68,18 +67,13 @@ def get_current_active_superuser(current_user: CurrentUser) -> User:
 def get_current_active_admin(current_user: CurrentUser) -> User:
     """获取当前活跃的管理员用户（包括超级管理员和普通管理员）"""
     if not current_user.is_active:
-        raise HTTPException(
-            status_code=400, detail="Inactive user"
-        )
+        raise HTTPException(status_code=400, detail="Inactive user")
     # 这里可以根据需要添加更多管理员权限检查逻辑
     # 目前所有活跃用户都可以访问普通管理员功能
     return current_user
 
 
-def get_current_user_by_api_key(
-    session: SessionDep, token: TokenDep
-) -> User:
-    
+def get_current_user_by_api_key(session: SessionDep, token: TokenDep) -> User:
     # 直接通过API Key查找对应的APIKey记录
     api_key = crud.get_api_key_by_key(session=session, key=token)
     if not api_key:
@@ -88,7 +82,7 @@ def get_current_user_by_api_key(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    
+
     # 检查API Key是否激活
     if not api_key.is_active:
         logger.error(f"API Key is inactive: {token}")
@@ -96,17 +90,17 @@ def get_current_user_by_api_key(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="API Key is inactive",
         )
-    
+
     # 获取API Key对应的用户
     user = session.get(User, api_key.owner_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
-    
+
     # 更新API Key的最后使用时间
     crud.update_api_key_last_used(session=session, api_key=api_key)
-    
+
     return user
 
 

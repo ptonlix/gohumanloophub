@@ -118,7 +118,7 @@ function TaskDetailPage() {
                     <Text><strong>{t("tasks.taskDetail.taskIdLabel")}</strong> {task.task_id}</Text>
                   </Flex>
                 )}
-                
+
                 {task.user_id && (
                   <Flex align="center" gap={2}>
                     <FiUser />
@@ -195,7 +195,7 @@ function TaskDetailPage() {
                                 <Box key={request.request_id || reqIndex} p={4} bg="gray.50" rounded="md">
                                   <SimpleGrid columns={{ base: 1, md: 2 }} gap={2} mb={3}>
                                     <Text fontSize="sm"><strong>{t("tasks.taskDetail.requestId")}</strong> {request.request_id}</Text>
-                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.status")}</strong> 
+                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.status")}</strong>
                                       <Badge ml={2} colorScheme={getStatusColor(request.status)} size="sm">
                                         {request.status}
                                       </Badge>
@@ -212,8 +212,8 @@ function TaskDetailPage() {
                                           {(() => {
                                             try {
                                               const parsed = typeof request.response === 'string' ? JSON.parse(request.response) : request.response;
-                                              return parsed && typeof parsed === 'object' && parsed.message 
-                                                ? parsed.message 
+                                              return parsed && typeof parsed === 'object' && parsed.message
+                                                ? parsed.message
                                                 : request.response;
                                             } catch {
                                               return request.response;
@@ -231,8 +231,8 @@ function TaskDetailPage() {
                                           {(() => {
                                             try {
                                               const parsed = typeof request.feedback === 'string' ? JSON.parse(request.feedback) : request.feedback;
-                                              return parsed && typeof parsed === 'object' && parsed.message 
-                                                ? parsed.message 
+                                              return parsed && typeof parsed === 'object' && parsed.message
+                                                ? parsed.message
                                                 : request.feedback;
                                             } catch {
                                               return request.feedback;

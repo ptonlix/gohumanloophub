@@ -22,7 +22,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
       - ALLOW_IP_RANGE=0.0.0.0/0
-      
+
   mongodb:
     image: mongo:7
     restart: always

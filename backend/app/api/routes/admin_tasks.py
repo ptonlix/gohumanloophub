@@ -1,21 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Optional
+
 from app.api.deps import MongoDep, get_current_active_superuser
 from app.models.models import (
     APIResponseWithList,
 )
 from app.models.mongodb_models import TaskModel
 
-
 router = APIRouter(prefix="/humanloop/admin/tasks", tags=["amdin_tasks"])
 
+
 @router.get(
-    "/", dependencies=[Depends(get_current_active_superuser)], response_model=APIResponseWithList[TaskModel]
+    "/",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=APIResponseWithList[TaskModel],
 )
 async def get_tasks(
     db: MongoDep,
-    user_id: Optional[str] = None,
-    task_id: Optional[str] = None,
+    user_id: str | None = None,
+    task_id: str | None = None,
     limit: int = Query(default=100, ge=1, le=1000),
     skip: int = Query(default=0, ge=0),
 ):

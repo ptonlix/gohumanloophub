@@ -47,12 +47,12 @@ function getTaskOverallStatus(conversations: any[]) {
   if (!conversations || conversations.length === 0) {
     return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
   }
-  
+
   let hasError = false
   let hasRunning = false
   let totalRequests = 0
   let completedRequests = 0
-  
+
   conversations.forEach(conv => {
     if (conv.requests) {
       conv.requests.forEach((req: any) => {
@@ -67,7 +67,7 @@ function getTaskOverallStatus(conversations: any[]) {
       })
     }
   })
-  
+
   if (hasError) {
     return { status: 'error', icon: <FiAlertCircle color="red" />, color: 'red' }
   }
@@ -77,7 +77,7 @@ function getTaskOverallStatus(conversations: any[]) {
   if (completedRequests === totalRequests && totalRequests > 0) {
     return { status: 'completed', icon: <FiCheckCircle color="green" />, color: 'green' }
   }
-  
+
   return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
 }
 
@@ -86,7 +86,7 @@ function getTaskStats(conversations: any[]) {
   let totalConversations = conversations?.length || 0
   let totalRequests = 0
   let loopTypes = new Set()
-  
+
   conversations?.forEach(conv => {
     if (conv.requests) {
       totalRequests += conv.requests.length
@@ -97,7 +97,7 @@ function getTaskStats(conversations: any[]) {
       })
     }
   })
-  
+
   return {
     totalConversations,
     totalRequests,
@@ -191,7 +191,7 @@ function TasksTable() {
         <Table.Body>
           {tasks?.map((task: any) => {
             const stats = getTaskStats(task.conversations)
-            
+
             return (
               <Table.Row key={task.task_id} opacity={isPlaceholderData ? 0.5 : 1}>
                 <Table.Cell>

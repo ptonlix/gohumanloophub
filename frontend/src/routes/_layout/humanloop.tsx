@@ -391,8 +391,8 @@ function RequestsTable() {
                 </Badge>
               </Table.Cell>
               <Table.Cell maxW="200px">
-                <Text 
-                  truncate 
+                <Text
+                  truncate
                   whiteSpace="pre-wrap"
                   maxH="60px"
                   overflow="hidden"

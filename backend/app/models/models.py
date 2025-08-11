@@ -1,10 +1,10 @@
 import uuid
-from typing import List, Optional, Generic, TypeVar
 from datetime import datetime
+from typing import Generic, TypeVar
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
 from sqlalchemy.types import JSON
+from sqlmodel import Field, Relationship, SQLModel
 
 
 # Shared properties
@@ -63,7 +63,9 @@ class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
     api_keys: list["APIKey"] = Relationship(back_populates="owner", cascade_delete=True)
-    human_loop_requests: list["HumanLoopRequest"] = Relationship(back_populates="owner", cascade_delete=True)
+    human_loop_requests: list["HumanLoopRequest"] = Relationship(
+        back_populates="owner", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -74,9 +76,6 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
-
-
 
 
 # Generic message
@@ -102,18 +101,24 @@ class NewPassword(SQLModel):
 
 T = TypeVar("T")  # 声明泛型类型变量
 
+
 class APIResponse(SQLModel):
     """API 响应基础模型"""
+
     success: bool = Field(default=True, description="请求是否成功")
-    error: Optional[str] = Field(default=None, description="错误信息（如有）")
+    error: str | None = Field(default=None, description="错误信息（如有）")
+
 
 class APIResponseWithData(APIResponse, Generic[T]):
     """带数据的API响应模型（支持泛型）"""
+
     data: T = Field(description="响应数据")
+
 
 class APIResponseWithList(APIResponse, Generic[T]):
     """带列表数据的API响应模型（支持泛型）"""
-    data: List[T] = Field(description="响应数据列表")
+
+    data: list[T] = Field(description="响应数据列表")
     count: int = Field(description="数据总数")
     skip: int = Field(default=0, description="跳过的记录数")
     limit: int = Field(default=100, description="返回的记录数")
@@ -122,7 +127,9 @@ class APIResponseWithList(APIResponse, Generic[T]):
 # API Key models
 class APIKeyBase(SQLModel):
     name: str = Field(max_length=255, description="API Key名称")
-    description: str | None = Field(default=None, max_length=500, description="API Key描述")
+    description: str | None = Field(
+        default=None, max_length=500, description="API Key描述"
+    )
     is_active: bool = Field(default=True, description="是否激活")
 
 
@@ -139,7 +146,9 @@ class APIKeyUpdate(SQLModel):
 class APIKey(APIKeyBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     key: str = Field(unique=True, index=True, max_length=64)
-    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_used_at: datetime | None = Field(default=None)
     owner: User | None = Relationship(back_populates="api_keys")
@@ -163,12 +172,18 @@ class HumanLoopRequestBase(SQLModel):
     task_id: str = Field(max_length=255, description="任务ID")
     conversation_id: str = Field(max_length=255, description="对话ID")
     request_id: str = Field(max_length=255, description="请求ID")
-    loop_type: str = Field(max_length=50, description="循环类型: conversation | approval | information")
+    loop_type: str = Field(
+        max_length=50, description="循环类型: conversation | approval | information"
+    )
     platform: str = Field(max_length=50, description="平台: wechat | feishu | other")
-    status: str = Field(default="pending", max_length=50, description="状态: pending | approved | rejected | error| expired| inprogress | completed | cancelled")
+    status: str = Field(
+        default="pending",
+        max_length=50,
+        description="状态: pending | approved | rejected | error| expired| inprogress | completed | cancelled",
+    )
     context: dict = Field(sa_type=JSON, description="上下文信息")
     metadata_: dict | None = Field(sa_type=JSON, description="元数据", alias="metadata")
-    response: dict | None = Field(default=None,sa_type=JSON, description="响应数据")
+    response: dict | None = Field(default=None, sa_type=JSON, description="响应数据")
     feedback: str | None = Field(default=None, max_length=1000, description="反馈信息")
     responded_by: str | None = Field(default=None, max_length=255, description="响应人")
     responded_at: datetime | None = Field(default=None, description="响应时间")
@@ -194,9 +209,15 @@ class HumanLoopRequestUpdate(SQLModel):
 
 class HumanLoopRequest(HumanLoopRequestBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="创建时间")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="更新时间")
-    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="创建时间"
+    )
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow, description="更新时间"
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
     owner: User | None = Relationship(back_populates="human_loop_requests")
 
 
@@ -239,5 +260,4 @@ class HumanLoopContinueRequest(SQLModel):
     request_id: str = Field(max_length=255)
     context: dict = Field(sa_type=JSON)
     platform: str = Field(max_length=50)
-    metadata_: dict | None= Field(default=None, sa_type=JSON, alias="metadata")
-    
+    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")

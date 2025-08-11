@@ -205,7 +205,7 @@ const AnimatedBackground = () => {
           scale: { duration: 5, repeat: Infinity }
         }}
       />
-      
+
       {/* 内嵌圆环 */}
       <motion.div
         style={{
@@ -226,7 +226,7 @@ const AnimatedBackground = () => {
           scale: { duration: 3, repeat: Infinity }
         }}
       />
-      
+
       {/* 交叉圆环1 */}
       <motion.div
         style={{
@@ -248,7 +248,7 @@ const AnimatedBackground = () => {
           scale: { duration: 6, repeat: Infinity }
         }}
       />
-      
+
       {/* 交叉圆环2 */}
       <motion.div
         style={{
@@ -292,7 +292,7 @@ const AnimatedBackground = () => {
           y: { duration: 6, repeat: Infinity }
         }}
       />
-      
+
       <motion.div
         style={{
           position: 'absolute',
@@ -312,7 +312,7 @@ const AnimatedBackground = () => {
           scale: { duration: 3, repeat: Infinity }
         }}
       />
-      
+
       {/* 中央莫比乌斯环 */}
       <motion.div
         style={{
@@ -336,7 +336,7 @@ const AnimatedBackground = () => {
           scaleY: { duration: 10, repeat: Infinity }
         }}
       />
-      
+
       <motion.div
         style={{
           position: 'absolute',

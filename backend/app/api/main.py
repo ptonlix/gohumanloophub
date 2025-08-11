@@ -1,6 +1,17 @@
 from fastapi import APIRouter
 
-from app.api.routes import login, admin_tasks, private, tasks, users, utils, api_keys, humanloop, admin_humanloop, admin_dashboard
+from app.api.routes import (
+    admin_dashboard,
+    admin_humanloop,
+    admin_tasks,
+    api_keys,
+    humanloop,
+    login,
+    private,
+    tasks,
+    users,
+    utils,
+)
 from app.core.config import settings
 
 api_router = APIRouter()

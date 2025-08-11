@@ -332,7 +332,7 @@ def create_task():
             "user_agent": "Mozilla/5.0..."
         }
     }
-    
+
     response = requests.post(f"{BASE_URL}/tasks/", json=task_data)
     print(f"创建任务响应: {response.status_code}")
     print(response.json())
@@ -342,17 +342,17 @@ def create_task():
 def update_task_full(task_id, updated_data):
     # 确保包含task_id
     updated_data["task_id"] = task_id
-    
+
     # 使用POST方法发送完整的任务数据进行全量更新
     response = requests.post(f"{BASE_URL}/tasks/", json=updated_data)
     result = response.json()
-    
+
     # 检查是否为更新操作
     if result.get("updated", False):
         print(f"任务 {task_id} 已全量更新")
     else:
         print(f"任务 {task_id} 创建成功（非更新）")
-    
+
     return result
 
 # 获取任务列表
@@ -360,7 +360,7 @@ def get_tasks(user_id=None):
     params = {}
     if user_id:
         params["user_id"] = user_id
-    
+
     response = requests.get(f"{BASE_URL}/tasks/", params=params)
     print(f"获取任务列表响应: {response.status_code}")
     print(json.dumps(response.json(), indent=2))
@@ -385,7 +385,7 @@ def create_sync_log(task_id):
         },
         "synced_at": datetime.now(timezone.utc).isoformat()
     }
-    
+
     response = requests.post(f"{BASE_URL}/tasks/sync", json=sync_log_data)
     print(f"创建同步日志响应: {response.status_code}")
     print(response.json())
@@ -394,11 +394,11 @@ def create_sync_log(task_id):
 def example_update_task():
     # 先获取现有任务
     task = get_task("task123")
-    
+
     # 修改任务数据
     task["metadata"]["source"] = "mobile"
     task["metadata"]["user_agent"] = "Updated User Agent"
-    
+
     # 添加新的对话
     new_conversation = {
         "conversation_id": "conv456",
@@ -417,7 +417,7 @@ def example_update_task():
         ]
     }
     task["conversations"].append(new_conversation)
-    
+
     # 执行全量更新
     result = update_task_full("task123", task)
     return result

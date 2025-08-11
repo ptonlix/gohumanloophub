@@ -21,7 +21,7 @@ wait_seconds = 1
 def init() -> None:
     try:
         # 尝试连接MongoDB并执行ping命令
-        mongo_client.admin.command('ping')
+        mongo_client.admin.command("ping")
         logger.info("MongoDB连接成功")
     except Exception as e:
         logger.error(f"MongoDB连接失败: {e}")

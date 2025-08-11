@@ -1,6 +1,7 @@
-import requests
 import json
 from datetime import datetime, timezone
+
+import requests
 
 # API基础URL
 BASE_URL = "http://localhost:8000/api/v1"
@@ -24,16 +25,16 @@ task_data = {
                     "feedback": "反馈内容",
                     "responded_by": "user123",
                     "responded_at": datetime.now(timezone.utc).isoformat(),
-                    "error": None
+                    "error": None,
                 }
-            ]
+            ],
         }
     ],
     "metadata": {
         "source": "web",
         "client_ip": "192.168.1.1",
-        "user_agent": "Mozilla/5.0..."
-    }
+        "user_agent": "Mozilla/5.0...",
+    },
 }
 
 # 创建同步日志的测试数据
@@ -46,9 +47,9 @@ sync_log_data = {
     "request_details": {
         "url": "https://www.gohumanloop.com/v1/humanloop/tasks/sync",
         "method": "POST",
-        "response_code": 200
+        "response_code": 200,
     },
-    "synced_at": datetime.now(timezone.utc).isoformat()
+    "synced_at": datetime.now(timezone.utc).isoformat(),
 }
 
 
@@ -83,7 +84,7 @@ def test_update_task(task_id):
         "metadata": {
             "source": "mobile",
             "client_ip": "192.168.1.2",
-            "user_agent": "Updated User Agent"
+            "user_agent": "Updated User Agent",
         }
     }
     response = requests.put(f"{BASE_URL}/tasks/{task_id}", json=update_data)
@@ -112,19 +113,19 @@ def run_all_tests():
     """运行所有测试"""
     # 创建任务
     task_id = test_create_task()
-    
+
     # 获取任务列表
     test_get_tasks()
-    
+
     # 获取单个任务
     test_get_task(task_id)
-    
+
     # 更新任务
     test_update_task(task_id)
-    
+
     # 创建同步日志
     test_create_sync_log()
-    
+
     # 获取同步日志列表
     test_get_sync_logs()
 

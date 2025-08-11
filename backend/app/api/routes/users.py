@@ -1,9 +1,8 @@
-from re import A
 import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, select
+from sqlmodel import func, select
 
 from app import crud
 from app.api.deps import (
@@ -12,25 +11,28 @@ from app.api.deps import (
     get_current_active_superuser,
 )
 from app.core.config import settings
+from app.core.redis import generate_verification_code, redis_client
 from app.core.security import get_password_hash, verify_password
 from app.models.models import (
+    APIResponseWithData,
+    APIResponseWithList,
+    EmailVerificationCode,
+    EmailVerificationRequest,
     Message,
     UpdatePassword,
     User,
     UserCreate,
     UserPublic,
     UserRegister,
-    UsersPublic,
+    UserRegisterWithCode,
     UserUpdate,
     UserUpdateMe,
-    APIResponseWithData,
-    APIResponseWithList,
-    EmailVerificationRequest,
-    EmailVerificationCode,
-    UserRegisterWithCode
 )
-from app.utils import generate_new_account_email, send_email, generate_verification_code_email
-from app.core.redis import redis_client, generate_verification_code
+from app.utils import (
+    generate_new_account_email,
+    generate_verification_code_email,
+    send_email,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -57,7 +59,9 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
 
 
 @router.post(
-    "/", dependencies=[Depends(get_current_active_superuser)], response_model=APIResponseWithData[UserPublic]
+    "/",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=APIResponseWithData[UserPublic],
 )
 def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
@@ -148,7 +152,9 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
 
 
 @router.post("/send-verification-code", response_model=APIResponseWithData[Message])
-def send_verification_code(session: SessionDep, request: EmailVerificationRequest) -> Any:
+def send_verification_code(
+    session: SessionDep, request: EmailVerificationRequest
+) -> Any:
     """
     Send email verification code.
     """
@@ -159,24 +165,24 @@ def send_verification_code(session: SessionDep, request: EmailVerificationReques
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    
+
     # 检查发送频率限制
     if not redis_client.check_rate_limit(request.email):
         raise HTTPException(
             status_code=429,
             detail="请等待1分钟后再次发送验证码",
         )
-    
+
     # 生成验证码
     verification_code = generate_verification_code()
-    
+
     # 存储验证码到Redis
     if not redis_client.set_verification_code(request.email, verification_code):
         raise HTTPException(
             status_code=500,
             detail="验证码存储失败，请稍后重试",
         )
-    
+
     # 发送邮件
     if settings.emails_enabled:
         email_data = generate_verification_code_email(
@@ -187,7 +193,7 @@ def send_verification_code(session: SessionDep, request: EmailVerificationReques
             subject=email_data.subject,
             html_content=email_data.html_content,
         )
-    
+
     return APIResponseWithData(data=Message(message="验证码已发送到您的邮箱"))
 
 
@@ -202,13 +208,13 @@ def verify_email_code(request: EmailVerificationCode) -> Any:
             status_code=400,
             detail="验证码已过期或不存在",
         )
-    
+
     if stored_code != request.code:
         raise HTTPException(
             status_code=400,
             detail="验证码错误",
         )
-    
+
     return APIResponseWithData(data=Message(message="验证码验证成功"))
 
 
@@ -240,7 +246,7 @@ def register_user_with_code(session: SessionDep, user_in: UserRegisterWithCode) 
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    
+
     # 验证验证码
     stored_code = redis_client.get_verification_code(user_in.email)
     if not stored_code:
@@ -248,24 +254,22 @@ def register_user_with_code(session: SessionDep, user_in: UserRegisterWithCode) 
             status_code=400,
             detail="验证码已过期或不存在",
         )
-    
+
     if stored_code != user_in.verification_code:
         raise HTTPException(
             status_code=400,
             detail="验证码错误",
         )
-    
+
     # 创建用户
     user_create = UserCreate(
-        email=user_in.email,
-        password=user_in.password,
-        full_name=user_in.full_name
+        email=user_in.email, password=user_in.password, full_name=user_in.full_name
     )
     user = crud.create_user(session=session, user_create=user_create)
-    
+
     # 删除已使用的验证码
     redis_client.delete_verification_code(user_in.email)
-    
+
     return APIResponseWithData(data=user)
 
 

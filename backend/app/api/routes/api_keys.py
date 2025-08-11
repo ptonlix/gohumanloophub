@@ -1,17 +1,15 @@
-from fastapi import APIRouter, HTTPException, Query
-from typing import Optional
+from fastapi import APIRouter, Query
 
+from app import crud
 from app.api.deps import CurrentUser, SessionDep
 from app.models.models import (
+    APIKeyCreate,
+    APIKeyPublic,
+    APIKeyUpdate,
     APIResponseWithData,
     APIResponseWithList,
-    APIKeyCreate,
-    APIKeyUpdate,
-    APIKeyPublic,
-    APIKeysPublic,
     Message,
 )
-from app import crud
 
 router = APIRouter(prefix="/api-keys", tags=["api-keys"])
 
@@ -42,11 +40,11 @@ def get_my_api_keys(
     """获取当前用户的API Key列表"""
     try:
         api_keys = crud.get_user_api_keys(session=session, owner_id=current_user.id)
-        
+
         # 应用分页
         total_count = len(api_keys)
         paginated_keys = api_keys[skip : skip + limit]
-        
+
         return APIResponseWithList(
             success=True,
             data=paginated_keys,
@@ -77,18 +75,17 @@ def update_api_key(
     try:
         # 查找API Key
         from app.models.models import APIKey
+
         api_key = session.get(APIKey, api_key_id)
         if not api_key:
-            return APIResponseWithData(
-                success=False, error="API Key不存在", data=None
-            )
-        
+            return APIResponseWithData(success=False, error="API Key不存在", data=None)
+
         # 检查所有权
         if api_key.owner_id != current_user.id:
             return APIResponseWithData(
                 success=False, error="无权限操作此API Key", data=None
             )
-        
+
         # 更新API Key
         updated_api_key = crud.update_api_key(
             session=session, db_api_key=api_key, api_key_in=api_key_in
@@ -101,25 +98,22 @@ def update_api_key(
 
 
 @router.delete("/{api_key_id}", response_model=APIResponseWithData[Message])
-def delete_api_key(
-    *, session: SessionDep, current_user: CurrentUser, api_key_id: str
-):
+def delete_api_key(*, session: SessionDep, current_user: CurrentUser, api_key_id: str):
     """删除API Key"""
     try:
         # 查找API Key
         from app.models.models import APIKey
+
         api_key = session.get(APIKey, api_key_id)
         if not api_key:
-            return APIResponseWithData(
-                success=False, error="API Key不存在", data=None
-            )
-        
+            return APIResponseWithData(success=False, error="API Key不存在", data=None)
+
         # 检查所有权
         if api_key.owner_id != current_user.id:
             return APIResponseWithData(
                 success=False, error="无权限操作此API Key", data=None
             )
-        
+
         # 删除API Key
         crud.delete_api_key(session=session, api_key=api_key)
         return APIResponseWithData(

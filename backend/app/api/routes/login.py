@@ -11,11 +11,11 @@ from app.core import security
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.models import (
+    APIResponseWithData,
     Message,
     NewPassword,
     Token,
     UserPublic,
-    APIResponseWithData,
 )
 from app.utils import (
     generate_password_reset_token,

@@ -19,7 +19,7 @@ def init_mongodb() -> None:
     """初始化MongoDB连接"""
     try:
         # 检查连接是否正常
-        mongo_client.admin.command('ping')
+        mongo_client.admin.command("ping")
     except Exception as e:
         print(f"MongoDB连接失败: {e}")
         raise e

@@ -118,7 +118,7 @@ function UsersTable() {
 
 function Admin() {
   const { t } = useTranslation()
-  
+
   return (
     <Container maxW="full">
       <Flex justify="space-between" align="center" pt={12} mb={6}>

@@ -56,14 +56,14 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
-    
+
     # MongoDB settings
     MONGODB_SERVER: str = "localhost"
     MONGODB_PORT: int = 27017
     MONGODB_DB: str = "app"
     MONGODB_USER: str = ""
     MONGODB_PASSWORD: str = ""
-    
+
     # Redis settings
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
@@ -81,7 +81,7 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
-        
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def MONGODB_URI(self) -> str:

@@ -1,16 +1,20 @@
 from datetime import datetime
-from fastapi import APIRouter, Query
-from typing import Optional
 
-from app.models.mongodb_models import TaskModel, TaskUpdateModel
+from fastapi import APIRouter, Query
+
 from app.api.deps import CurrentUser, CurrentUserByAPIKey, MongoDep
 from app.models.models import APIResponseWithData, APIResponseWithList
+from app.models.mongodb_models import TaskModel, TaskUpdateModel
 
 router = APIRouter(prefix="/humanloop/tasks", tags=["tasks"])
 
 
-@router.post("/sync", response_model=APIResponseWithData[TaskUpdateModel], status_code=201)
-async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUserByAPIKey):
+@router.post(
+    "/sync", response_model=APIResponseWithData[TaskUpdateModel], status_code=201
+)
+async def sync_task_data(
+    task: TaskModel, db: MongoDep, current_user: CurrentUserByAPIKey
+):
     """接收从客户端同步的任务数据，创建新任务或全量更新已存在的任务"""
     try:
         # 转换为字典并准备插入数据库
@@ -73,7 +77,7 @@ async def sync_task_data(task: TaskModel, db: MongoDep, current_user: CurrentUse
 async def get_my_tasks(
     db: MongoDep,
     current_user: CurrentUser,
-    task_id: Optional[str] = None,
+    task_id: str | None = None,
     limit: int = Query(default=100, ge=1, le=1000),
     skip: int = Query(default=0, ge=0),
 ):

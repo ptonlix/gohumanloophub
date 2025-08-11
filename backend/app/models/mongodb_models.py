@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional, Union
+
 from pydantic import BaseModel, Field
 
 
@@ -9,11 +9,11 @@ class RequestModel(BaseModel):
     request_id: str
     status: str
     loop_type: str
-    response: Union[dict, str]
-    feedback: Optional[str] = None
+    response: dict | str
+    feedback: str | None = None
     responded_by: str
     responded_at: datetime
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class ConversationModel(BaseModel):
@@ -21,7 +21,7 @@ class ConversationModel(BaseModel):
 
     conversation_id: str
     provider_id: str
-    requests: List[RequestModel]
+    requests: list[RequestModel]
 
 
 class MetadataModel(BaseModel):
@@ -35,22 +35,23 @@ class MetadataModel(BaseModel):
 class TaskModel(BaseModel):
     """任务模型"""
 
-    id: Optional[str] = Field(None, alias="_id")
+    id: str | None = Field(None, alias="_id")
     task_id: str
-    user_id: Optional[str] = None
-    timestamp: datetime # 客户端数据收集时间
-    conversations: List[ConversationModel]
-    metadata: MetadataModel 
-    created_at: datetime = Field(default_factory=datetime.utcnow) # 任务创建时间
-    updated_at: datetime = Field(default_factory=datetime.utcnow) # 任务更新时间
+    user_id: str | None = None
+    timestamp: datetime  # 客户端数据收集时间
+    conversations: list[ConversationModel]
+    metadata: MetadataModel
+    created_at: datetime = Field(default_factory=datetime.utcnow)  # 任务创建时间
+    updated_at: datetime = Field(default_factory=datetime.utcnow)  # 任务更新时间
 
     class Config:
         populate_by_name = True
         json_encoders = {datetime: lambda v: v.isoformat()}
 
+
 class TaskUpdateModel(BaseModel):
     """任务更新状态模型"""
-    
+
     id: str = Field(..., alias="_id")
     task_id: str
     updated: bool = False

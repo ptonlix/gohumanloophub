@@ -40,7 +40,7 @@ const EditApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: E
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
-  
+
   const handleClose = () => {
     if (onCloseProp) {
       onCloseProp()

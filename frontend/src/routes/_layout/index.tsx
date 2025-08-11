@@ -70,10 +70,10 @@ interface DashboardData {
 }
 
 function getDashboardQueryOptions(isSuperuser: boolean = false) {
-  const endpoint = isSuperuser 
+  const endpoint = isSuperuser
     ? `${OpenAPI.BASE}/api/v1/humanloop/admin/dashboard/stats`
     : `${OpenAPI.BASE}/api/v1/humanloop/admin/dashboard/user-stats`
-    
+
   return {
     queryKey: ["dashboard", isSuperuser ? "admin" : "user"],
     queryFn: async (): Promise<{ success: boolean; data: DashboardData }> => {
@@ -131,7 +131,7 @@ function getPlatformIcon(platform: string) {
   }
 }
 
-export const Route = createFileRoute("/_layout/")({ 
+export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
 })
 
@@ -224,7 +224,7 @@ function HumanLoopStatsCards({ data }: { data: DashboardData }) {
     },
     {
       label: t("dashboard.successRate"),
-      value: data.human_loop_requests.total > 0 
+      value: data.human_loop_requests.total > 0
         ? `${Math.round((data.summary.completed_requests / data.human_loop_requests.total) * 100)}%`
         : "0%",
       icon: FiTrendingUp,

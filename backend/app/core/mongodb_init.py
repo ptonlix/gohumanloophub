@@ -11,12 +11,12 @@ def init_mongodb_indexes():
             IndexModel([("task_id", ASCENDING)], unique=True),
             IndexModel([("user_id", ASCENDING)]),
             IndexModel([("timestamp", ASCENDING)]),
-            IndexModel([("conversations.conversation_id", ASCENDING)])
+            IndexModel([("conversations.conversation_id", ASCENDING)]),
         ]
-        
+
         # 创建索引
         mongo_db.tasks.create_indexes(task_indexes)
-        
+
         print("MongoDB索引创建成功")
     except Exception as e:
         print(f"MongoDB索引创建失败: {e}")

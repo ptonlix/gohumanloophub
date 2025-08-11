@@ -14,14 +14,14 @@ export const Route = createFileRoute("/_layout/settings")({
 function UserSettings() {
   const { t } = useTranslation()
   const { user: currentUser } = useAuth()
-  
+
   const tabsConfig = [
     { value: "my-profile", title: t("userSettings.myProfile"), component: UserInformation },
     { value: "password", title: t("userSettings.password"), component: ChangePassword },
     { value: "appearance", title: t("userSettings.appearance"), component: Appearance },
     { value: "danger-zone", title: t("userSettings.dangerZone"), component: DeleteAccount },
   ]
-  
+
   const finalTabs = currentUser?.is_superuser
     ? tabsConfig.slice(0, 3)
     : tabsConfig

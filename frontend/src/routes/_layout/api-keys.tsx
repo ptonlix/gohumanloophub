@@ -43,7 +43,7 @@ function getApiKeysQueryOptions({ page }: { page: number }) {
   }
 }
 
-export const Route = createFileRoute("/_layout/api-keys")({ 
+export const Route = createFileRoute("/_layout/api-keys")({
   component: ApiKeys,
   validateSearch: (search) => apiKeysSearchSchema.parse(search),
 })
@@ -97,7 +97,7 @@ function ApiKeys() {
 
       <VStack gap={4} align="stretch" w="full">
         <AddApiKey />
-        
+
         {isPending ? (
           <Flex justify="center" align="center" height="200px">
             <Text>{t("apiKeys.loading")}</Text>
@@ -167,7 +167,7 @@ function ApiKeys() {
                     ))}
                   </Table.Body>
                 </Table.Root>
-                
+
                 <Flex justify="flex-end" mt={4}>
                   <PaginationRoot
                     count={data.count}
@@ -198,22 +198,22 @@ function ApiKeys() {
           </Box>
         )}
       </VStack>
-      
+
       {/* 编辑对话框 */}
       {editingApiKey && (
-        <EditApiKey 
-          apiKey={editingApiKey} 
-          isOpen={!!editingApiKey} 
-          onClose={handleCloseEdit} 
+        <EditApiKey
+          apiKey={editingApiKey}
+          isOpen={!!editingApiKey}
+          onClose={handleCloseEdit}
         />
       )}
-      
+
       {/* 删除对话框 */}
       {deletingApiKey && (
-        <DeleteApiKey 
-          apiKey={deletingApiKey} 
-          isOpen={!!deletingApiKey} 
-          onClose={handleCloseDelete} 
+        <DeleteApiKey
+          apiKey={deletingApiKey}
+          isOpen={!!deletingApiKey}
+          onClose={handleCloseDelete}
         />
       )}
     </Container>

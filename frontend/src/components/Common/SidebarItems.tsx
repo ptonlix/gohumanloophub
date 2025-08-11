@@ -29,7 +29,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const currentUser = queryClient.getQueryData<UserPublic>(["currentUser"])
-  
+
   const items = getItems(t)
   const finalItems: Item[] = currentUser?.is_superuser
     ? [...items, { icon: FiUsers, title: t('navigation.admin'), path: "/admin" }]

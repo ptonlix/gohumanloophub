@@ -100,7 +100,9 @@ def generate_new_account_email(
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_verification_code_email(email_to: str, verification_code: str) -> EmailData:
+def generate_verification_code_email(
+    email_to: str, verification_code: str
+) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - 邮箱验证码"
     html_content = render_email_template(
