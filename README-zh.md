@@ -1,10 +1,10 @@
-# GoHumanLoop Hub [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 <div align="center">
 
 ![Wordmark Logo of HumanLayer](http://cdn.oyster-iot.cloud/gohumanloop-logo.svg)
 
 <b face="雅黑">Human X Agent 协作平台</b>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
