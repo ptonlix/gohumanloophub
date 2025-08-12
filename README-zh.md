@@ -66,7 +66,7 @@
 ## 📚 整体架构设计
 
 <div align="center">
-	<img height=300 src="http://cdn.oyster-iot.cloud/202508130024371.png"><br>
+	<img height=360 src="http://cdn.oyster-iot.cloud/202508130024371.png"><br>
     <b face="雅黑">GoHumanLoop与GoHumanLoopHub架构关系</b>
 </div>
 

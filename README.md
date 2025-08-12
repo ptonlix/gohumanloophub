@@ -66,7 +66,7 @@
 ## 📚 Overall Architecture Design
 
 <div align="center">
-	<img height=300 src="http://cdn.oyster-iot.cloud/202508130024371.png"><br>
+	<img height=360 src="http://cdn.oyster-iot.cloud/202508130024371.png"><br>
     <b face="Microsoft YaHei">Architecture Relationship between GoHumanLoop and GoHumanLoopHub</b>
 </div>
 
