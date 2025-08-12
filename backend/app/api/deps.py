@@ -1,6 +1,6 @@
 import logging
 from collections.abc import Generator
-from typing import Annotated
+from typing import Annotated, Any
 
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -31,7 +31,7 @@ def get_db() -> Generator[Session, None, None]:
 
 SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
-MongoDep = Annotated[Database, Depends(get_mongo_db)]
+MongoDep = Annotated[Database[dict[str, Any]], Depends(get_mongo_db)]
 
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:

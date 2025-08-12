@@ -20,7 +20,7 @@ async def get_tasks(
     task_id: str | None = None,
     limit: int = Query(default=100, ge=1, le=1000),
     skip: int = Query(default=0, ge=0),
-):
+) -> APIResponseWithList[TaskModel]:
     """获取任务列表，支持过滤和分页（管理员权限）"""
     try:
         # 构建查询条件

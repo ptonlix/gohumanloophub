@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+from sqlalchemy import and_
 from sqlmodel import Session, desc, select
 
 from app.core.security import get_password_hash, verify_password
@@ -251,12 +252,11 @@ def get_humanloop_requests_with_filters(
     """根据过滤条件获取人机循环请求列表（管理后台使用）"""
     from datetime import datetime as dt
 
-    from sqlalchemy import and_
     from sqlmodel import desc
 
     statement = select(HumanLoopRequest)
 
-    conditions = []
+    conditions: list[Any] = []
     if owner_id:
         conditions.append(HumanLoopRequest.owner_id == owner_id)
     if loop_type:
@@ -305,12 +305,11 @@ def count_humanloop_requests_with_filters(
     """统计符合过滤条件的人机循环请求数量（管理后台使用）"""
     from datetime import datetime as dt
 
-    from sqlalchemy import and_
     from sqlmodel import func
 
     statement = select(func.count()).select_from(HumanLoopRequest)
 
-    conditions = []
+    conditions: list[Any] = []
     if owner_id:
         conditions.append(HumanLoopRequest.owner_id == owner_id)
     if loop_type:
@@ -343,9 +342,11 @@ def count_humanloop_requests_with_filters(
     return len(list(session.exec(statement).all()))
 
 
-def get_humanloop_stats(*, session: Session, owner_id: uuid.UUID | None = None) -> dict:
+def get_humanloop_stats(
+    *, session: Session, owner_id: uuid.UUID | None = None
+) -> dict[str, dict[str, int] | int]:
     """获取人机循环请求统计信息（管理后台使用）"""
-    stats = {}
+    stats: dict[str, dict[str, int] | int] = {}
 
     # 按状态统计
     status_stats = {}

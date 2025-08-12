@@ -51,7 +51,9 @@ sync_log_data = {
 }
 
 
-def test_create_task(client: TestClient, superuser_token_headers: dict[str, str]):
+def test_create_task(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
     """测试创建任务API - 需要API密钥认证，跳过测试"""
     # 此端点需要API密钥认证，普通token会返回403
     response = client.post(
@@ -62,7 +64,7 @@ def test_create_task(client: TestClient, superuser_token_headers: dict[str, str]
     assert response.status_code == 403  # 预期的权限错误
 
 
-def test_get_tasks(client: TestClient, superuser_token_headers: dict[str, str]):
+def test_get_tasks(client: TestClient, superuser_token_headers: dict[str, str]) -> None:
     """测试获取任务列表API"""
     response = client.get(
         f"{settings.API_V1_STR}/humanloop/tasks/", headers=superuser_token_headers
@@ -70,7 +72,7 @@ def test_get_tasks(client: TestClient, superuser_token_headers: dict[str, str]):
     assert response.status_code == 200
 
 
-def test_get_task(client: TestClient):
+def test_get_task(client: TestClient) -> None:
     """测试获取单个任务API"""
     # 首先创建一个任务
     create_response = client.post(
@@ -82,7 +84,7 @@ def test_get_task(client: TestClient):
         assert response.status_code in [200, 404]  # 404 if task not found is acceptable
 
 
-def test_update_task(client: TestClient):
+def test_update_task(client: TestClient) -> None:
     """测试更新任务API"""
     # 首先创建一个任务
     create_response = client.post(
@@ -103,7 +105,9 @@ def test_update_task(client: TestClient):
         assert response.status_code in [200, 404]  # 404 if task not found is acceptable
 
 
-def test_create_sync_log(client: TestClient, superuser_token_headers: dict[str, str]):
+def test_create_sync_log(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
     """测试创建同步日志API - 需要API密钥认证，跳过测试"""
     # 此端点需要API密钥认证，普通token会返回403
     response = client.post(
@@ -114,13 +118,12 @@ def test_create_sync_log(client: TestClient, superuser_token_headers: dict[str, 
     assert response.status_code == 403  # 预期的权限错误
 
 
-def test_get_sync_logs(client: TestClient, superuser_token_headers: dict[str, str]):
+def test_get_sync_logs(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
     """测试获取同步日志列表API"""
     response = client.get(
         f"{settings.API_V1_STR}/humanloop/tasks/sync/logs",
         headers=superuser_token_headers,
     )
     assert response.status_code in [200, 404]  # 404 if endpoint doesn't exist
-
-
-# 移除了run_all_tests函数，因为pytest会自动运行所有test_开头的函数

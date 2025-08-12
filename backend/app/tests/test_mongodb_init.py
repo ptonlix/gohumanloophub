@@ -6,7 +6,7 @@ from app.core.mongodb_init import init_mongodb_indexes
 
 
 @pytest.fixture
-def mock_mongo_db():
+def mock_mongo_db() -> MagicMock:
     """创建MongoDB模拟对象"""
     mock_db = MagicMock()
     mock_db.tasks = MagicMock()
@@ -14,7 +14,7 @@ def mock_mongo_db():
 
 
 @patch("app.core.mongodb_init.mongo_db", new_callable=MagicMock)
-def test_init_mongodb_indexes(mock_db):
+def test_init_mongodb_indexes(mock_db: MagicMock) -> None:
     """测试MongoDB索引初始化"""
     # 把任务集合 mock 掉
     mock_db.tasks = MagicMock()
@@ -29,7 +29,7 @@ def test_init_mongodb_indexes(mock_db):
 
 
 @patch("app.core.mongodb_init.mongo_db", new_callable=MagicMock)
-def test_init_mongodb_indexes_exception(mock_db):
+def test_init_mongodb_indexes_exception(mock_db: MagicMock) -> None:
     """测试异常处理"""
     # 让 create_indexes 抛异常
     mock_db.tasks.create_indexes.side_effect = Exception("测试异常")

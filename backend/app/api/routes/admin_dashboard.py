@@ -17,17 +17,17 @@ router = APIRouter(prefix="/humanloop/admin/dashboard", tags=["admin_dashboard"]
 class DashboardStats:
     """Dashboard统计数据模型"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.total_tasks = 0
         self.total_conversations = 0
         self.total_requests = 0
         self.total_users = 0
         self.total_human_loop_requests = 0
-        self.human_loop_by_status = {}
-        self.human_loop_by_type = {}
-        self.human_loop_by_platform = {}
-        self.recent_tasks = []
-        self.recent_human_loop_requests = []
+        self.human_loop_by_status: dict[str, int] = {}
+        self.human_loop_by_type: dict[str, int] = {}
+        self.human_loop_by_platform: dict[str, int] = {}
+        self.recent_tasks: list[dict[str, Any]] = []
+        self.recent_human_loop_requests: list[dict[str, Any]] = []
 
 
 @router.get(
@@ -38,7 +38,7 @@ class DashboardStats:
 async def get_dashboard_stats(
     db: MongoDep,
     session: SessionDep,
-):
+) -> APIResponseWithData[dict[str, Any]]:
     """获取Dashboard统计数据（超级管理员权限）"""
     try:
         stats = DashboardStats()
@@ -176,7 +176,7 @@ async def get_user_dashboard_stats(
     db: MongoDep,
     session: SessionDep,
     current_user: User = Depends(get_current_active_admin),
-):
+) -> APIResponseWithData[dict[str, Any]]:
     """获取当前用户的Dashboard统计数据（普通管理员权限）"""
     try:
         stats = DashboardStats()

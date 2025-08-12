@@ -7,7 +7,7 @@ from app.core.config import settings
 
 
 class RedisClient:
-    def __init__(self):
+    def __init__(self) -> None:
         self.redis_client = redis.Redis(
             host=settings.REDIS_HOST,
             port=settings.REDIS_PORT,
@@ -22,7 +22,8 @@ class RedisClient:
         """存储验证码，默认5分钟过期"""
         try:
             key = f"email_verification:{email}"
-            return self.redis_client.setex(key, expire_seconds, code)
+            result = self.redis_client.setex(key, expire_seconds, code)
+            return bool(result)
         except Exception:
             return False
 
@@ -30,7 +31,8 @@ class RedisClient:
         """获取验证码"""
         try:
             key = f"email_verification:{email}"
-            return self.redis_client.get(key)
+            result = self.redis_client.get(key)
+            return str(result) if result else None
         except Exception:
             return None
 

@@ -3,7 +3,7 @@ from pymongo import ASCENDING, IndexModel
 from app.core.mongodb import mongo_db
 
 
-def init_mongodb_indexes():
+def init_mongodb_indexes() -> None:
     """初始化MongoDB索引"""
     try:
         # 任务集合索引

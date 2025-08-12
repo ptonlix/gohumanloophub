@@ -210,7 +210,7 @@ def continue_humanloop_request(
             # 更新任务ID、上下文和元数据
             existing_request.task_id = continue_request.task_id
             existing_request.context = continue_request.context
-            existing_request.metadata = continue_request.metadata
+            existing_request.metadata_ = continue_request.metadata_
 
             crud.update_humanloop_request(
                 session=session, db_request=existing_request, request_in=update_data

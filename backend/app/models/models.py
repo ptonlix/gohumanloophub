@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import EmailStr
 from sqlalchemy.types import JSON
@@ -181,9 +181,13 @@ class HumanLoopRequestBase(SQLModel):
         max_length=50,
         description="状态: pending | approved | rejected | error| expired| inprogress | completed | cancelled",
     )
-    context: dict = Field(sa_type=JSON, description="上下文信息")
-    metadata_: dict | None = Field(sa_type=JSON, description="元数据", alias="metadata")
-    response: dict | None = Field(default=None, sa_type=JSON, description="响应数据")
+    context: dict[str, Any] = Field(sa_type=JSON, description="上下文信息")
+    metadata_: dict[str, Any] | None = Field(
+        sa_type=JSON, description="元数据", alias="metadata"
+    )
+    response: dict[str, Any] | None = Field(
+        default=None, sa_type=JSON, description="响应数据"
+    )
     feedback: str | None = Field(default=None, max_length=1000, description="反馈信息")
     responded_by: str | None = Field(default=None, max_length=255, description="响应人")
     responded_at: datetime | None = Field(default=None, description="响应时间")
@@ -195,13 +199,15 @@ class HumanLoopRequestCreate(SQLModel):
     request_id: str = Field(max_length=255)
     loop_type: str = Field(max_length=50)
     platform: str = Field(max_length=50)
-    context: dict = Field(sa_type=JSON)
-    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")
+    context: dict[str, Any] = Field(sa_type=JSON)
+    metadata_: dict[str, Any] | None = Field(
+        default=None, sa_type=JSON, alias="metadata"
+    )
 
 
 class HumanLoopRequestUpdate(SQLModel):
     status: str | None = Field(default=None, max_length=50)
-    response: dict | None = Field(default=None, sa_type=JSON)
+    response: dict[str, Any] | None = Field(default=None, sa_type=JSON)
     feedback: str | None = Field(default=None, max_length=1000)
     responded_by: str | None = Field(default=None, max_length=255)
     responded_at: datetime | None = Field(default=None)
@@ -237,7 +243,7 @@ class HumanLoopRequestsPublic(SQLModel):
 class HumanLoopStatusResponse(SQLModel):
     success: bool = Field(default=True)
     status: str = Field(description="请求状态")
-    response: dict | None = Field(sa_type=JSON, description="响应数据")
+    response: dict[str, Any] | None = Field(sa_type=JSON, description="响应数据")
     feedback: str | None = Field(default=None, description="反馈信息")
     responded_by: str | None = Field(default=None, description="响应人")
     responded_at: datetime | None = Field(default=None, description="响应时间")
@@ -258,6 +264,8 @@ class HumanLoopContinueRequest(SQLModel):
     task_id: str = Field(max_length=255)
     conversation_id: str = Field(max_length=255)
     request_id: str = Field(max_length=255)
-    context: dict = Field(sa_type=JSON)
+    context: dict[str, Any] = Field(sa_type=JSON)
     platform: str = Field(max_length=50)
-    metadata_: dict | None = Field(default=None, sa_type=JSON, alias="metadata")
+    metadata_: dict[str, Any] | None = Field(
+        default=None, sa_type=JSON, alias="metadata"
+    )

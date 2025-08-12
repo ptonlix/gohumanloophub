@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Query
 
@@ -14,7 +15,7 @@ router = APIRouter(prefix="/humanloop/tasks", tags=["tasks"])
 )
 async def sync_task_data(
     task: TaskModel, db: MongoDep, current_user: CurrentUserByAPIKey
-):
+) -> APIResponseWithData[TaskUpdateModel] | APIResponseWithData[Any]:
     """接收从客户端同步的任务数据，创建新任务或全量更新已存在的任务"""
     try:
         # 转换为字典并准备插入数据库
@@ -47,7 +48,7 @@ async def sync_task_data(
         if existing_task:
             # 如果任务已存在，执行全量替换（保留原始_id）
             task_dict["created_at"] = existing_task.get("created_at", datetime.utcnow())
-            result = db.tasks.replace_one({"task_id": task.task_id}, task_dict)
+            db.tasks.replace_one({"task_id": task.task_id}, task_dict)
             return APIResponseWithData(
                 success=True,
                 data=TaskUpdateModel(
@@ -58,17 +59,17 @@ async def sync_task_data(
             )
         else:
             # 如果任务不存在，执行插入
-            result = db.tasks.insert_one(task_dict)
+            insert_result = db.tasks.insert_one(task_dict)
             return APIResponseWithData(
                 success=True,
                 data=TaskUpdateModel(
-                    _id=str(result.inserted_id),
+                    _id=str(insert_result.inserted_id),
                     task_id=task.task_id,
                     updated=False,
                 ),
             )
     except Exception as e:
-        return APIResponseWithData(
+        return APIResponseWithData[Any](
             success=False, error=f"创建或更新任务失败: {str(e)}", data=None
         )
 
@@ -80,7 +81,7 @@ async def get_my_tasks(
     task_id: str | None = None,
     limit: int = Query(default=100, ge=1, le=1000),
     skip: int = Query(default=0, ge=0),
-):
+) -> APIResponseWithList[TaskModel]:
     """获取当前用户的任务列表"""
     try:
         # 构建查询条件 - 只查询当前用户的任务
@@ -112,14 +113,16 @@ async def get_my_tasks(
 
 
 @router.get("/{task_id}", response_model=APIResponseWithData[TaskModel])
-async def get_task(db: MongoDep, current_user: CurrentUser, task_id: str):
+async def get_task(
+    db: MongoDep, current_user: CurrentUser, task_id: str
+) -> APIResponseWithData[TaskModel] | APIResponseWithData[Any]:
     """根据task_id获取单个任务"""
     try:
         # 查询任务
         task = db.tasks.find_one({"user_id": str(current_user.id), "task_id": task_id})
 
         if not task:
-            return APIResponseWithData(
+            return APIResponseWithData[Any](
                 success=False, error=f"未找到任务: {task_id}", data=None
             )
 
@@ -128,13 +131,15 @@ async def get_task(db: MongoDep, current_user: CurrentUser, task_id: str):
 
         return APIResponseWithData(success=True, data=task)
     except Exception as e:
-        return APIResponseWithData(
+        return APIResponseWithData[Any](
             success=False, error=f"获取任务失败: {str(e)}", data=None
         )
 
 
 @router.delete("/{task_id}", response_model=APIResponseWithData)
-async def delete_task(db: MongoDep, current_user: CurrentUser, task_id: str):
+async def delete_task(
+    db: MongoDep, current_user: CurrentUser, task_id: str
+) -> APIResponseWithData[Any]:
     """删除任务"""
     try:
         # 执行删除

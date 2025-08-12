@@ -15,14 +15,14 @@ test_data = {
 }
 
 
-def test_mongodb_post_data(client: TestClient):
+def test_mongodb_post_data(client: TestClient) -> None:
     """测试MongoDB数据存储API"""
     response = client.post(f"{settings.API_V1_STR}/mongodb/data", json=test_data)
     # MongoDB API可能不存在，所以接受404状态码
     assert response.status_code in [200, 201, 404]
 
 
-def test_mongodb_get_data(client: TestClient):
+def test_mongodb_get_data(client: TestClient) -> None:
     """测试MongoDB数据获取API"""
     # 先尝试创建数据
     client.post(f"{settings.API_V1_STR}/mongodb/data", json=test_data)

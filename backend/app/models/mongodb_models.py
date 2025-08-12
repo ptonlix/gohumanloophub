@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -9,7 +10,7 @@ class RequestModel(BaseModel):
     request_id: str
     status: str
     loop_type: str
-    response: dict | str
+    response: dict[str, Any] | str
     feedback: str | None = None
     responded_by: str
     responded_at: datetime

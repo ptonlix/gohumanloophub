@@ -1,5 +1,7 @@
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 import sentry_sdk
 from fastapi import FastAPI, Request
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI):
+async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     # 在应用启动时初始化 MongoDB
     init_mongodb()
     yield
@@ -41,10 +43,14 @@ app = FastAPI(
 
 # 添加自定义异常处理器来记录详细的验证错误
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     # 记录详细的验证错误信息
     logger.error(f"Validation error for {request.method} {request.url}:")
-    logger.error(f"Request body: {await request.body()}")
+    logger.error(
+        f"Request body: {(await request.body()).decode('utf-8', errors='replace')}"
+    )
     logger.error(f"Validation errors: {exc.errors()}")
 
     # 返回详细的错误信息
@@ -73,7 +79,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # 添加请求日志中间件
 @app.middleware("http")
-async def log_requests(request: Request, call_next):
+async def log_requests(request: Request, call_next: Any) -> Any:
     # 记录请求信息
     logger.info(f"Request: {request.method} {request.url}")
     if request.method in ["POST", "PUT", "PATCH"]:

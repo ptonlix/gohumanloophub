@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Query
 
 from app import crud
@@ -17,7 +19,7 @@ router = APIRouter(prefix="/api-keys", tags=["api-keys"])
 @router.post("/", response_model=APIResponseWithData[APIKeyPublic], status_code=201)
 def create_api_key(
     *, session: SessionDep, current_user: CurrentUser, api_key_in: APIKeyCreate
-):
+) -> APIResponseWithData[APIKeyPublic] | APIResponseWithData[Any]:
     """创建新的API Key"""
     try:
         api_key = crud.create_api_key(
@@ -36,7 +38,7 @@ def get_my_api_keys(
     current_user: CurrentUser,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=1000),
-):
+) -> APIResponseWithList[APIKeyPublic]:
     """获取当前用户的API Key列表"""
     try:
         api_keys = crud.get_user_api_keys(session=session, owner_id=current_user.id)
@@ -47,7 +49,7 @@ def get_my_api_keys(
 
         return APIResponseWithList(
             success=True,
-            data=paginated_keys,
+            data=[APIKeyPublic.model_validate(key) for key in paginated_keys],
             count=total_count,
             skip=skip,
             limit=limit,
@@ -70,7 +72,7 @@ def update_api_key(
     current_user: CurrentUser,
     api_key_id: str,
     api_key_in: APIKeyUpdate,
-):
+) -> APIResponseWithData[APIKeyPublic] | APIResponseWithData[Any]:
     """更新API Key"""
     try:
         # 查找API Key
@@ -98,7 +100,9 @@ def update_api_key(
 
 
 @router.delete("/{api_key_id}", response_model=APIResponseWithData[Message])
-def delete_api_key(*, session: SessionDep, current_user: CurrentUser, api_key_id: str):
+def delete_api_key(
+    *, session: SessionDep, current_user: CurrentUser, api_key_id: str
+) -> APIResponseWithData[Message] | APIResponseWithData[Any]:
     """删除API Key"""
     try:
         # 查找API Key

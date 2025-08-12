@@ -25,14 +25,16 @@ class AdminHumanLoopApprovalRequest(SQLModel):
     request_id: str = Field(description="请求ID")
     action: str = Field(description="操作: approved | rejected")
     feedback: str | None = Field(default=None, description="审批意见")
-    response: dict | None = Field(default=None, sa_type=JSON, description="响应数据")
+    response: dict[str, Any] | None = Field(
+        default=None, sa_type=JSON, description="响应数据"
+    )
 
 
 class AdminHumanLoopInformationRequest(SQLModel):
     """信息获取模式处理请求"""
 
     request_id: str = Field(description="请求ID")
-    response: dict = Field(sa_type=JSON, description="获取到的信息")
+    response: dict[str, Any] = Field(sa_type=JSON, description="获取到的信息")
     feedback: str | None = Field(default=None, description="备注信息")
 
 
@@ -40,7 +42,7 @@ class AdminHumanLoopConversationRequest(SQLModel):
     """对话模式处理请求"""
 
     request_id: str = Field(description="请求ID")
-    response: dict = Field(sa_type=JSON, description="对话回复内容")
+    response: dict[str, Any] = Field(sa_type=JSON, description="对话回复内容")
     feedback: str | None = Field(default=None, description="备注信息")
     is_complete: bool = Field(
         default=False,
@@ -471,7 +473,7 @@ def update_request_status(
         return APIResponse(success=False, error=str(e))
 
 
-@router.get("/stats", response_model=APIResponseWithData[dict])
+@router.get("/stats", response_model=APIResponseWithData[dict[str, Any]])
 def get_humanloop_stats(*, session: SessionDep, current_user: CurrentUser) -> Any:
     """
     获取人机循环统计信息

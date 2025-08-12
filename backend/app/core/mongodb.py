@@ -1,16 +1,18 @@
+from typing import Any
+
 from pymongo import MongoClient
 from pymongo.database import Database
 
 from app.core.config import settings
 
 # 创建MongoDB客户端连接
-mongo_client = MongoClient(settings.MONGODB_URI)
+mongo_client: MongoClient[dict[str, Any]] = MongoClient(settings.MONGODB_URI)
 
 # 获取数据库实例
-mongo_db: Database = mongo_client[settings.MONGODB_DB]
+mongo_db: Database[dict[str, Any]] = mongo_client[settings.MONGODB_DB]
 
 
-def get_mongo_db() -> Database:
+def get_mongo_db() -> Database[dict[str, Any]]:
     """获取MongoDB数据库实例的依赖函数"""
     return mongo_db
 
