@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from app.core.config import settings
-from app.models import User
+from app.models.models import User
 
 
 def test_create_user(client: TestClient, db: Session) -> None:
@@ -17,9 +17,18 @@ def test_create_user(client: TestClient, db: Session) -> None:
 
     assert r.status_code == 200
 
-    data = r.json()
+    content = r.json()
+    print(content)
+    user_data = content.get("data", content)
 
-    user = db.exec(select(User).where(User.id == data["id"])).first()
+    # Handle UUID conversion if needed
+    user_id = user_data["id"]
+    if isinstance(user_id, str):
+        import uuid
+
+        user_id = uuid.UUID(user_id)
+
+    user = db.exec(select(User).where(User.id == user_id)).first()
 
     assert user
     assert user.email == "pollo@listo.com"

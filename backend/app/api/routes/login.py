@@ -35,6 +35,7 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     try:
+        print(form_data)
         user = crud.authenticate(
             session=session, email=form_data.username, password=form_data.password
         )

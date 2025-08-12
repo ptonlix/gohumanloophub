@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 from app import crud
 from app.core.config import settings
 from app.core.security import verify_password
-from app.models import User, UserCreate
+from app.models.models import User, UserCreate
 from app.tests.utils.utils import random_email, random_lower_string
 
 
@@ -16,10 +16,12 @@ def test_get_users_superuser_me(
 ) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=superuser_token_headers)
     current_user = r.json()
-    assert current_user
-    assert current_user["is_active"] is True
-    assert current_user["is_superuser"]
-    assert current_user["email"] == settings.FIRST_SUPERUSER
+    # Handle both direct response and APIResponseWithData format
+    user_data = current_user.get("data", current_user)
+    assert user_data
+    assert user_data["is_active"] is True
+    assert user_data["is_superuser"]
+    assert user_data["email"] == settings.FIRST_SUPERUSER
 
 
 def test_get_users_normal_user_me(
@@ -27,10 +29,12 @@ def test_get_users_normal_user_me(
 ) -> None:
     r = client.get(f"{settings.API_V1_STR}/users/me", headers=normal_user_token_headers)
     current_user = r.json()
-    assert current_user
-    assert current_user["is_active"] is True
-    assert current_user["is_superuser"] is False
-    assert current_user["email"] == settings.EMAIL_TEST_USER
+    # Handle both direct response and APIResponseWithData format
+    user_data = current_user.get("data", current_user)
+    assert user_data
+    assert user_data["is_active"] is True
+    assert user_data["is_superuser"] is False
+    assert user_data["email"] == settings.EMAIL_TEST_USER
 
 
 def test_create_user_new_email(
@@ -51,9 +55,10 @@ def test_create_user_new_email(
         )
         assert 200 <= r.status_code < 300
         created_user = r.json()
+        user_data = created_user.get("data", created_user)
         user = crud.get_user_by_email(session=db, email=username)
         assert user
-        assert user.email == created_user["email"]
+        assert user.email == user_data["email"]
 
 
 def test_get_existing_user(
@@ -70,9 +75,10 @@ def test_get_existing_user(
     )
     assert 200 <= r.status_code < 300
     api_user = r.json()
+    user_data = api_user.get("data", api_user)
     existing_user = crud.get_user_by_email(session=db, email=username)
     assert existing_user
-    assert existing_user.email == api_user["email"]
+    assert existing_user.email == user_data["email"]
 
 
 def test_get_existing_user_current_user(client: TestClient, db: Session) -> None:
@@ -88,8 +94,9 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
     }
     r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
     tokens = r.json()
-    a_token = tokens["access_token"]
-    headers = {"Authorization": f"Bearer {a_token}"}
+    # Handle APIResponseWithData format
+    auth_token = tokens["data"]["access_token"]
+    headers = {"Authorization": f"Bearer {auth_token}"}
 
     r = client.get(
         f"{settings.API_V1_STR}/users/{user_id}",
@@ -97,9 +104,10 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
     )
     assert 200 <= r.status_code < 300
     api_user = r.json()
+    user_data = api_user.get("data", api_user)
     existing_user = crud.get_user_by_email(session=db, email=username)
     assert existing_user
-    assert existing_user.email == api_user["email"]
+    assert existing_user.email == user_data["email"]
 
 
 def test_get_existing_user_permissions_error(
@@ -181,8 +189,10 @@ def test_update_user_me(
     )
     assert r.status_code == 200
     updated_user = r.json()
-    assert updated_user["email"] == email
-    assert updated_user["full_name"] == full_name
+    # Handle both direct response and APIResponseWithData format
+    user_data = updated_user.get("data", updated_user)
+    assert user_data["email"] == email
+    assert user_data["full_name"] == full_name
 
     user_query = select(User).where(User.email == email)
     user_db = db.exec(user_query).first()
@@ -206,7 +216,8 @@ def test_update_password_me(
     )
     assert r.status_code == 200
     updated_user = r.json()
-    assert updated_user["message"] == "Password updated successfully"
+    message_data = updated_user.get("data", updated_user)
+    assert message_data["message"] == "Password updated successfully"
 
     user_query = select(User).where(User.email == settings.FIRST_SUPERUSER)
     user_db = db.exec(user_query).first()
@@ -227,6 +238,9 @@ def test_update_password_me(
     db.refresh(user_db)
 
     assert r.status_code == 200
+    revert_response = r.json()
+    revert_message_data = revert_response.get("data", revert_response)
+    assert revert_message_data["message"] == "Password updated successfully"
     assert verify_password(settings.FIRST_SUPERUSER_PASSWORD, user_db.hashed_password)
 
 
@@ -293,8 +307,9 @@ def test_register_user(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     created_user = r.json()
-    assert created_user["email"] == username
-    assert created_user["full_name"] == full_name
+    user_data = created_user.get("data", created_user)
+    assert user_data["email"] == username
+    assert user_data["full_name"] == full_name
 
     user_query = select(User).where(User.email == username)
     user_db = db.exec(user_query).first()
@@ -336,8 +351,9 @@ def test_update_user(
     )
     assert r.status_code == 200
     updated_user = r.json()
+    user_data = updated_user.get("data", updated_user)
 
-    assert updated_user["full_name"] == "Updated_full_name"
+    assert user_data["full_name"] == "Updated_full_name"
 
     user_query = select(User).where(User.email == username)
     user_db = db.exec(user_query).first()
@@ -395,8 +411,9 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     }
     r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
     tokens = r.json()
-    a_token = tokens["access_token"]
-    headers = {"Authorization": f"Bearer {a_token}"}
+    # Handle APIResponseWithData format
+    auth_token = tokens["data"]["access_token"]
+    headers = {"Authorization": f"Bearer {auth_token}"}
 
     r = client.delete(
         f"{settings.API_V1_STR}/users/me",
@@ -404,7 +421,15 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
     )
     assert r.status_code == 200
     deleted_user = r.json()
-    assert deleted_user["message"] == "User deleted successfully"
+    # Handle APIResponseWithData format
+    if (
+        "data" in deleted_user
+        and deleted_user["data"]
+        and "message" in deleted_user["data"]
+    ):
+        assert deleted_user["data"]["message"] == "User deleted successfully"
+    else:
+        assert deleted_user["message"] == "User deleted successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
     assert result is None
 
@@ -439,7 +464,15 @@ def test_delete_user_super_user(
     )
     assert r.status_code == 200
     deleted_user = r.json()
-    assert deleted_user["message"] == "User deleted successfully"
+    # Handle APIResponseWithData format
+    if (
+        "data" in deleted_user
+        and deleted_user["data"]
+        and "message" in deleted_user["data"]
+    ):
+        assert deleted_user["data"]["message"] == "User deleted successfully"
+    else:
+        assert deleted_user["message"] == "User deleted successfully"
     result = db.exec(select(User).where(User.id == user_id)).first()
     assert result is None
 
