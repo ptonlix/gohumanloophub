@@ -11,9 +11,9 @@ class RequestModel(BaseModel):
     status: str
     loop_type: str
     response: dict[str, Any] | str
-    feedback: str | None = None
-    responded_by: str
-    responded_at: datetime
+    feedback: str | dict[str, Any] | None = None
+    responded_by: str | None = None
+    responded_at: datetime | None = None
     error: str | None = None
 
 

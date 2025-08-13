@@ -74,8 +74,10 @@ def get_current_active_admin(current_user: CurrentUser) -> User:
 
 
 def get_current_user_by_api_key(session: SessionDep, token: TokenDep) -> User:
+    print(token)
     # 直接通过API Key查找对应的APIKey记录
     api_key = crud.get_api_key_by_key(session=session, key=token)
+    print(api_key)
     if not api_key:
         logger.error(f"API Key not found: {token}")
         raise HTTPException(

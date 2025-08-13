@@ -201,8 +201,8 @@ function TaskDetailPage() {
                                       </Badge>
                                     </Text>
                                     <Text fontSize="sm"><strong>{t("tasks.taskDetail.loopType")}</strong> {request.loop_type}</Text>
-                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.respondedBy")}</strong> {request.responded_by}</Text>
-                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.respondedAt")}</strong> {new Date(request.responded_at).toLocaleString()}</Text>
+                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.respondedBy")}</strong> {request.responded_by || t("common.notAvailable")}</Text>
+                                    <Text fontSize="sm"><strong>{t("tasks.taskDetail.respondedAt")}</strong> {request.responded_at ? new Date(request.responded_at).toLocaleString() : t("common.notAvailable")}</Text>
                                   </SimpleGrid>
                                   {request.response && (
                                     <Box mb={2}>
@@ -212,11 +212,12 @@ function TaskDetailPage() {
                                           {(() => {
                                             try {
                                               const parsed = typeof request.response === 'string' ? JSON.parse(request.response) : request.response;
-                                              return parsed && typeof parsed === 'object' && parsed.message
-                                                ? parsed.message
-                                                : request.response;
+                                              if (parsed && typeof parsed === 'object' && parsed.message) {
+                                                return String(parsed.message);
+                                              }
+                                              return typeof request.response === 'object' ? JSON.stringify(request.response, null, 2) : String(request.response || '');
                                             } catch {
-                                              return request.response;
+                                              return String(request.response || '');
                                             }
                                           })()}
                                         </pre>
@@ -231,11 +232,12 @@ function TaskDetailPage() {
                                           {(() => {
                                             try {
                                               const parsed = typeof request.feedback === 'string' ? JSON.parse(request.feedback) : request.feedback;
-                                              return parsed && typeof parsed === 'object' && parsed.message
-                                                ? parsed.message
-                                                : request.feedback;
+                                              if (parsed && typeof parsed === 'object' && parsed.message) {
+                                                return String(parsed.message);
+                                              }
+                                              return typeof request.feedback === 'object' ? JSON.stringify(request.feedback, null, 2) : String(request.feedback || '');
                                             } catch {
-                                              return request.feedback;
+                                              return String(request.feedback || '');
                                             }
                                           })()}
                                         </pre>

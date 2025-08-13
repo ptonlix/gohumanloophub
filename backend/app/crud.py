@@ -78,7 +78,7 @@ def create_api_key(
 
 
 def get_api_key_by_key(*, session: Session, key: str) -> APIKey | None:
-    statement = select(APIKey).where(APIKey.key == key, APIKey.is_active is True)
+    statement = select(APIKey).where(APIKey.key == key, APIKey.is_active)
     return session.exec(statement).first()
 
 

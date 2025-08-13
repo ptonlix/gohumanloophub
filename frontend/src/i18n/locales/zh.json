@@ -15,7 +15,8 @@
     "myProfile": "我的资料",
     "menu": "菜单",
     "language": "语言",
-    "continue": "继续"
+    "continue": "继续",
+    "notAvailable": "暂无数据"
   },
   "navigation": {
     "dashboard": "仪表板",

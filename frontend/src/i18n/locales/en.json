@@ -15,7 +15,8 @@
     "myProfile": "My Profile",
     "menu": "Menu",
     "language": "Language",
-    "continue": "Continue"
+    "continue": "Continue",
+    "notAvailable": "No Data Available"
   },
   "navigation": {
     "dashboard": "Dashboard",
