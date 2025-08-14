@@ -306,6 +306,7 @@ function RecentTasksTable({ tasks }: { tasks: DashboardData["tasks"]["recent"] }
                 to="/taskdetail/$taskId"
                 params={{ taskId: task.task_id }}
                 style={{ color: "blue.500", textDecoration: "underline" }}
+                title={task.task_id}
               >
                 {task.task_id.slice(0, 8)}...
               </Link>
