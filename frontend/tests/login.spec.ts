@@ -9,8 +9,8 @@ type OptionsType = {
 }
 
 const fillForm = async (page: Page, email: string, password: string) => {
-  await page.getByPlaceholder("Email").fill(email)
-  await page.getByPlaceholder("Password", { exact: true }).fill(password)
+  await page.getByPlaceholder("Enter your email").fill(email)
+  await page.getByPlaceholder("Enter your password").fill(password)
 }
 
 const verifyInput = async (
@@ -20,28 +20,28 @@ const verifyInput = async (
 ) => {
   const input = page.getByPlaceholder(placeholder, options)
   await expect(input).toBeVisible()
-  await expect(input).toHaveText("")
+  await expect(input).toHaveValue("")
   await expect(input).toBeEditable()
 }
 
 test("Inputs are visible, empty and editable", async ({ page }) => {
   await page.goto("/login")
 
-  await verifyInput(page, "Email")
-  await verifyInput(page, "Password", { exact: true })
+  await verifyInput(page, "Enter your email")
+  await verifyInput(page, "Enter your password")
 })
 
 test("Log In button is visible", async ({ page }) => {
   await page.goto("/login")
 
-  await expect(page.getByRole("button", { name: "Log In" })).toBeVisible()
+  await expect(page.getByRole("button", { name: "登录" })).toBeVisible()
 })
 
 test("Forgot Password link is visible", async ({ page }) => {
   await page.goto("/login")
 
   await expect(
-    page.getByRole("link", { name: "Forgot password?" }),
+    page.getByRole("link", { name: "忘记密码？" }),
   ).toBeVisible()
 })
 
@@ -64,7 +64,7 @@ test("Log in with invalid email", async ({ page }) => {
   await fillForm(page, "invalidemail", firstSuperuserPassword)
   await page.getByRole("button", { name: "Log In" }).click()
 
-  await expect(page.getByText("Invalid email address")).toBeVisible()
+  await expect(page.getByText("无效的邮箱地址")).toBeVisible()
 })
 
 test("Log in with invalid password", async ({ page }) => {
@@ -74,7 +74,7 @@ test("Log in with invalid password", async ({ page }) => {
   await fillForm(page, firstSuperuser, password)
   await page.getByRole("button", { name: "Log In" }).click()
 
-  await expect(page.getByText("Incorrect email or password")).toBeVisible()
+  await expect(page.getByText("邮箱或密码错误")).toBeVisible()
 })
 
 // Log out

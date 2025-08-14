@@ -16,9 +16,9 @@ test("Password Recovery title is visible", async ({ page }) => {
 test("Input is visible, empty and editable", async ({ page }) => {
   await page.goto("/recover-password")
 
-  await expect(page.getByPlaceholder("Email")).toBeVisible()
-  await expect(page.getByPlaceholder("Email")).toHaveText("")
-  await expect(page.getByPlaceholder("Email")).toBeEditable()
+  await expect(page.getByPlaceholder("Enter your email")).toBeVisible()
+  await expect(page.getByPlaceholder("Enter your email")).toHaveValue("")
+  await expect(page.getByPlaceholder("Enter your email")).toBeEditable()
 })
 
 test("Continue button is visible", async ({ page }) => {
@@ -40,7 +40,7 @@ test("User can reset password successfully using the link", async ({
   await signUpNewUser(page, fullName, email, password)
 
   await page.goto("/recover-password")
-  await page.getByPlaceholder("Email").fill(email)
+  await page.getByPlaceholder("Enter your email").fill(email)
 
   await page.getByRole("button", { name: "Continue" }).click()
 
@@ -64,8 +64,8 @@ test("User can reset password successfully using the link", async ({
   // Set the new password and confirm it
   await page.goto(url)
 
-  await page.getByPlaceholder("New Password").fill(newPassword)
-  await page.getByPlaceholder("Confirm Password").fill(newPassword)
+  await page.getByPlaceholder("Enter your password").fill(newPassword)
+  await page.getByPlaceholder("Confirm your password").fill(newPassword)
   await page.getByRole("button", { name: "Reset Password" }).click()
   await expect(page.getByText("Password updated successfully")).toBeVisible()
 
@@ -79,8 +79,8 @@ test("Expired or invalid reset link", async ({ page }) => {
 
   await page.goto(invalidUrl)
 
-  await page.getByPlaceholder("New Password").fill(password)
-  await page.getByPlaceholder("Confirm Password").fill(password)
+  await page.getByPlaceholder("Enter your password").fill(password)
+  await page.getByPlaceholder("Confirm your password").fill(password)
   await page.getByRole("button", { name: "Reset Password" }).click()
 
   await expect(page.getByText("Invalid token")).toBeVisible()
@@ -115,8 +115,8 @@ test("Weak new password validation", async ({ page, request }) => {
 
   // Set a weak new password
   await page.goto(url)
-  await page.getByPlaceholder("New Password").fill(weakPassword)
-  await page.getByPlaceholder("Confirm Password").fill(weakPassword)
+  await page.getByPlaceholder("Enter your password").fill(weakPassword)
+  await page.getByPlaceholder("Confirm your password").fill(weakPassword)
   await page.getByRole("button", { name: "Reset Password" }).click()
 
   await expect(

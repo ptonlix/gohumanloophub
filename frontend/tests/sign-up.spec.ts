@@ -15,10 +15,10 @@ const fillForm = async (
   password: string,
   confirm_password: string,
 ) => {
-  await page.getByPlaceholder("Full Name").fill(full_name)
-  await page.getByPlaceholder("Email").fill(email)
-  await page.getByPlaceholder("Password", { exact: true }).fill(password)
-  await page.getByPlaceholder("Confirm Password").fill(confirm_password)
+  await page.getByPlaceholder("Enter your full name").fill(full_name)
+  await page.getByPlaceholder("Enter your email").fill(email)
+  await page.getByPlaceholder("Enter your password").fill(password)
+  await page.getByPlaceholder("Confirm your password").fill(confirm_password)
 }
 
 const verifyInput = async (
@@ -28,17 +28,17 @@ const verifyInput = async (
 ) => {
   const input = page.getByPlaceholder(placeholder, options)
   await expect(input).toBeVisible()
-  await expect(input).toHaveText("")
+  await expect(input).toHaveValue("")
   await expect(input).toBeEditable()
 }
 
 test("Inputs are visible, empty and editable", async ({ page }) => {
   await page.goto("/signup")
 
-  await verifyInput(page, "Full Name")
-  await verifyInput(page, "Email")
-  await verifyInput(page, "Password", { exact: true })
-  await verifyInput(page, "Confirm Password")
+  await verifyInput(page, "Enter your full name")
+  await verifyInput(page, "Enter your email")
+  await verifyInput(page, "Enter your password")
+  await verifyInput(page, "Confirm your password")
 })
 
 test("Sign Up button is visible", async ({ page }) => {
@@ -75,7 +75,7 @@ test("Sign up with invalid email", async ({ page }) => {
   )
   await page.getByRole("button", { name: "Sign Up" }).click()
 
-  await expect(page.getByText("Invalid email address")).toBeVisible()
+  await expect(page.getByText("请输入有效的邮箱地址")).toBeVisible()
 })
 
 test("Sign up with existing email", async ({ page }) => {
@@ -111,7 +111,7 @@ test("Sign up with weak password", async ({ page }) => {
   await page.getByRole("button", { name: "Sign Up" }).click()
 
   await expect(
-    page.getByText("Password must be at least 8 characters"),
+    page.getByText("密码至少需要8个字符"),
   ).toBeVisible()
 })
 
@@ -126,7 +126,7 @@ test("Sign up with mismatched passwords", async ({ page }) => {
   await fillForm(page, fullName, email, password, password2)
   await page.getByRole("button", { name: "Sign Up" }).click()
 
-  await expect(page.getByText("Passwords do not match")).toBeVisible()
+  await expect(page.getByText("两次输入的密码不一致")).toBeVisible()
 })
 
 test("Sign up with missing full name", async ({ page }) => {
@@ -139,7 +139,7 @@ test("Sign up with missing full name", async ({ page }) => {
   await fillForm(page, fullName, email, password, password)
   await page.getByRole("button", { name: "Sign Up" }).click()
 
-  await expect(page.getByText("Full Name is required")).toBeVisible()
+  await expect(page.getByText("请输入姓名")).toBeVisible()
 })
 
 test("Sign up with missing email", async ({ page }) => {
@@ -152,7 +152,7 @@ test("Sign up with missing email", async ({ page }) => {
   await fillForm(page, fullName, email, password, password)
   await page.getByRole("button", { name: "Sign Up" }).click()
 
-  await expect(page.getByText("Email is required")).toBeVisible()
+  await expect(page.getByText("请输入邮箱")).toBeVisible()
 })
 
 test("Sign up with missing password", async ({ page }) => {
@@ -165,5 +165,5 @@ test("Sign up with missing password", async ({ page }) => {
   await fillForm(page, fullName, email, password, password)
   await page.getByRole("button", { name: "Sign Up" }).click()
 
-  await expect(page.getByText("Password is required")).toBeVisible()
+  await expect(page.getByText("请输入密码")).toBeVisible()
 })
