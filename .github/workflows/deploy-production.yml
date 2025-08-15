@@ -1,9 +1,10 @@
 name: Deploy to Production
 
-on:
-  release:
-    types:
-      - published
+# Temporarily disabled
+# on:
+#   release:
+#     types:
+#       - published
 
 jobs:
   deploy:

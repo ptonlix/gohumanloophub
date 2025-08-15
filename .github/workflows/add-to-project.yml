@@ -1,11 +1,12 @@
 name: Add to Project
 
-on:
-  pull_request_target:
-  issues:
-    types:
-      - opened
-      - reopened
+# Temporarily disabled
+# on:
+#   pull_request_target:
+#   issues:
+#     types:
+#       - opened
+#       - reopened
 
 jobs:
   add-to-project:

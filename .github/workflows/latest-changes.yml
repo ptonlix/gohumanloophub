@@ -1,20 +1,21 @@
 name: Latest Changes
 
-on:
-  pull_request_target:
-    branches:
-      - master
-    types:
-      - closed
-  workflow_dispatch:
-    inputs:
-      number:
-        description: PR number
-        required: true
-      debug_enabled:
-        description: "Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)"
-        required: false
-        default: "false"
+# Temporarily disabled
+# on:
+#   pull_request_target:
+#     branches:
+#       - master
+#     types:
+#       - closed
+#   workflow_dispatch:
+#     inputs:
+#       number:
+#         description: PR number
+#         required: true
+#       debug_enabled:
+#         description: "Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)"
+#         required: false
+#         default: "false"
 
 jobs:
   latest-changes:

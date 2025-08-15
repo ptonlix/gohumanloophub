@@ -1,13 +1,14 @@
 name: Labels
-on:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      # For label-checker
-      - labeled
-      - unlabeled
+# Temporarily disabled
+# on:
+#   pull_request_target:
+#     types:
+#       - opened
+#       - synchronize
+#       - reopened
+#       # For label-checker
+#       - labeled
+#       - unlabeled
 
 jobs:
   labeler:

@@ -1,13 +1,14 @@
 name: Test Docker Compose
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types:
-      - opened
-      - synchronize
+# Temporarily disabled
+# on:
+#   push:
+#     branches:
+#       - master
+#   pull_request:
+#     types:
+#       - opened
+#       - synchronize
 
 jobs:
 

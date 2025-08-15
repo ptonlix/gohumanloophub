@@ -1,10 +1,11 @@
 name: Generate Client
 
-on:
-  pull_request:
-    types:
-    - opened
-    - synchronize
+# Temporarily disabled
+# on:
+#   pull_request:
+#     types:
+#     - opened
+#     - synchronize
 
 jobs:
   generate-client:
