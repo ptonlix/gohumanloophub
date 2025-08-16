@@ -1,11 +1,11 @@
-import { Button, Flex, Text } from "@chakra-ui/react";
+import { Button, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FiGlobe } from "react-icons/fi";
 
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu";
 
 const LanguageSwitcher = () => {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);

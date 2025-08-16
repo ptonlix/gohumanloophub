@@ -12,7 +12,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { z } from "zod"
-import { FiCheckCircle, FiClock, FiAlertCircle, FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
+import { FiSearch, FiMessageCircle, FiActivity, FiGlobe } from "react-icons/fi"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { useTranslation } from "react-i18next"
 
@@ -43,43 +43,7 @@ function getTasksQueryOptions({ page }: { page: number }) {
 }
 
 // 获取任务整体状态（基于所有请求的状态）
-function getTaskOverallStatus(conversations: any[]) {
-  if (!conversations || conversations.length === 0) {
-    return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
-  }
 
-  let hasError = false
-  let hasRunning = false
-  let totalRequests = 0
-  let completedRequests = 0
-
-  conversations.forEach(conv => {
-    if (conv.requests) {
-      conv.requests.forEach((req: any) => {
-        totalRequests++
-        if (req.status === 'completed' || req.status === 'done') {
-          completedRequests++
-        } else if (req.status === 'error' || req.status === 'failed') {
-          hasError = true
-        } else if (req.status === 'running' || req.status === 'in_progress') {
-          hasRunning = true
-        }
-      })
-    }
-  })
-
-  if (hasError) {
-    return { status: 'error', icon: <FiAlertCircle color="red" />, color: 'red' }
-  }
-  if (hasRunning) {
-    return { status: 'running', icon: <FiActivity color="blue" />, color: 'blue' }
-  }
-  if (completedRequests === totalRequests && totalRequests > 0) {
-    return { status: 'completed', icon: <FiCheckCircle color="green" />, color: 'green' }
-  }
-
-  return { status: 'pending', icon: <FiClock color="gray" />, color: 'gray' }
-}
 
 // 获取任务统计信息
 function getTaskStats(conversations: any[]) {

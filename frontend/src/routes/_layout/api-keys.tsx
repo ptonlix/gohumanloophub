@@ -9,7 +9,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { z } from "zod"
@@ -50,7 +50,6 @@ export const Route = createFileRoute("/_layout/api-keys")({
 
 function ApiKeys() {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const navigate = useNavigate({ from: "/api-keys" })
   const { page } = Route.useSearch()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -158,7 +157,6 @@ function ApiKeys() {
                         </Table.Cell>
                         <Table.Cell>
                           <ApiKeyActionsMenu
-                            apiKey={apiKey}
                             onEdit={() => handleEdit(apiKey)}
                             onDelete={() => handleDelete(apiKey)}
                           />

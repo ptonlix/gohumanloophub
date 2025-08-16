@@ -40,21 +40,7 @@ function getStatusColor(status: string) {
   }
 }
 
-function getPriorityColor(priority: string) {
-  switch (priority?.toLowerCase()) {
-    case 'high':
-    case '高':
-      return 'red'
-    case 'medium':
-    case '中':
-      return 'yellow'
-    case 'low':
-    case '低':
-      return 'green'
-    default:
-      return 'gray'
-  }
-}
+
 
 export const Route = createFileRoute("/_layout/taskdetail/$taskId")({
   component: TaskDetailPage,

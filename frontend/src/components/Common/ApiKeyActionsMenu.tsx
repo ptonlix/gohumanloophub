@@ -17,10 +17,9 @@ interface ApiKeyActionsMenuProps {
 }
 
 export const ApiKeyActionsMenu = ({
-  apiKey,
   onEdit,
   onDelete,
-}: ApiKeyActionsMenuProps) => {
+}: Omit<ApiKeyActionsMenuProps, 'apiKey'>) => {
   const { t } = useTranslation()
   return (
     <MenuRoot>

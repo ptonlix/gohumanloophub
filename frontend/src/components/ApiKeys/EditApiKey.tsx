@@ -2,11 +2,10 @@ import {
   Button,
   Input,
   Textarea,
-  useDisclosure,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiEdit } from "react-icons/fi"
+
 import { useTranslation } from "react-i18next"
 
 import { type ApiKeyUpdate, type ApiKeyPublic, ApiKeysService } from "@/client/ApiKeysService"
@@ -21,7 +20,6 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 interface EditApiKeyProps {
@@ -33,10 +31,9 @@ interface EditApiKeyComponentProps {
   apiKey: ApiKeyPublic
   isOpen?: boolean
   onClose?: () => void
-  children?: React.ReactNode
 }
 
-const EditApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: EditApiKeyComponentProps) => {
+const EditApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp }: EditApiKeyComponentProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -49,7 +46,6 @@ const EditApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: E
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<EditApiKeyProps>({
     mode: "onBlur",
@@ -67,8 +63,7 @@ const EditApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: E
       showSuccessToast("API Key updated successfully!")
       handleClose()
     },
-    onError: (err: any) => {
-      const errDetail = err.body?.detail
+    onError: () => {
       showErrorToast("Something went wrong. Please try again later.")
     },
     onSettled: () => {

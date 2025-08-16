@@ -10,7 +10,7 @@ import { FiLock, FiUser, FiMail } from "react-icons/fi"
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
 
-import type { UserRegister, UserRegisterWithCode, EmailVerificationRequest } from "@/client"
+import type { UserRegisterWithCode } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
@@ -38,7 +38,7 @@ interface UserRegisterForm extends UserRegisterWithCode {
 
 function SignUp() {
   const { t } = useTranslation()
-  const { signUpMutation } = useAuth()
+  const {} = useAuth()
   const navigate = useNavigate()
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [isSendingCode, setIsSendingCode] = useState(false)

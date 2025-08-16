@@ -1,4 +1,4 @@
-import { Button, Text, useDisclosure } from "@chakra-ui/react"
+import { Button, Text } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
@@ -13,17 +13,15 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 
 interface DeleteApiKeyProps {
   apiKey: ApiKeyPublic
   isOpen?: boolean
   onClose?: () => void
-  children?: React.ReactNode
 }
 
-const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }: DeleteApiKeyProps) => {
+const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp }: DeleteApiKeyProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -40,8 +38,7 @@ const DeleteApiKey = ({ apiKey, isOpen = true, onClose: onCloseProp, children }:
       showSuccessToast("API Key deleted successfully!")
       handleClose()
     },
-    onError: (err: any) => {
-      const errDetail = err.body?.detail
+    onError: () => {
       showErrorToast("Something went wrong. Please try again later.")
     },
     onSettled: () => {

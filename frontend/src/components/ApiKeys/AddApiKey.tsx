@@ -56,8 +56,7 @@ const AddApiKey = () => {
       reset()
       onClose()
     },
-    onError: (err: any) => {
-      const errDetail = err.body?.detail
+    onError: () => {
       showErrorToast("Something went wrong. Please try again later.")
     },
     onSettled: () => {
