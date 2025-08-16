@@ -20,9 +20,9 @@
 
 ## 🛠️ 技术栈&特性
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) —— 用于 Python 后端 API。
+- ⚡ [**FastAPI**](https://fastapi.ptonlix.com) —— 用于 Python 后端 API。
 
-  - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) —— Python 中的 SQL 数据库交互（ORM）。
+  - 🧰 [SQLModel](https://sqlmodel.ptonlix.com) —— Python 中的 SQL 数据库交互（ORM）。
   - 🔍 [Pydantic](https://docs.pydantic.dev) —— 被 FastAPI 使用，用于数据验证和配置管理。
   - 💾 [PostgreSQL](https://www.postgresql.org) —— 作为 SQL 数据库。
   - 🔄 [Alembic](https://alembic.sqlalchemy.org) —— 数据库迁移工具。
@@ -52,7 +52,7 @@
 - 克隆此仓库：`git clone https://github.com/ptonlix/gohumanloophub.git`
 - 进入项目目录：`cd gohumanloophub`
 - 复制示例环境变量文件：`cp .env.example .env`
-- 编辑 `.env` 文件，配置数据库连接、Redis 连接等。
+- 编辑 `.env` 文件，配置密码、数据库连接、Redis 连接、MongoDB 连接等。
 - 启动服务：`docker compose up -d`
 - 访问前端应用：`http://localhost:5173`
 - 访问 API 文档：`http://localhost:8000/docs`

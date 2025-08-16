@@ -20,9 +20,9 @@
 
 ## 🛠️ Tech Stack & Features
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) — Python backend API.
+- ⚡ [**FastAPI**](https://fastapi.ptonlix.com) — Python backend API.
 
-  - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) — SQL database interactions in Python (ORM).
+  - 🧰 [SQLModel](https://sqlmodel.ptonlix.com) — SQL database interactions in Python (ORM).
   - 🔍 [Pydantic](https://docs.pydantic.dev) — Used by FastAPI for data validation and settings management.
   - 💾 [PostgreSQL](https://www.postgresql.org) — SQL database.
   - 🔄 [Alembic](https://alembic.sqlalchemy.org) — Database migration tool.
