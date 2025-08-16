@@ -24,7 +24,7 @@ services:
       - ALLOW_IP_RANGE=0.0.0.0/0
 
   mongodb:
-    image: mongo:7
+    image: mongo:8
     restart: always
     networks:
       - traefik-public
